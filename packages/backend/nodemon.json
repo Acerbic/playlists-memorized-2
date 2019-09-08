@@ -1,0 +1,8 @@
+{
+    "ext": "js,json,env",
+    "ignore": ["./node_modules", "./src", "./.vscode"],
+    "env": {
+        "NODE_ENV": "development"
+    },
+    "verbose": true
+}
