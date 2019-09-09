@@ -1,15 +1,14 @@
 import { Server } from "http";
 import { AddressInfo } from "net";
-import express, { RequestHandler, ErrorRequestHandler } from "express";
-import httpErrors from "http-errors";
+import { Express } from "express";
 import pino from "pino";
-import pinoHttp from "pino-http";
 
-import routes from "./routes";
+import makeApp, { AppOptions } from "./app";
 
-function main(options?: any, cb?: any) {
+type ReadyCallback = (err?: any, app?: Express, server?: Server) => void;
+
+function main(options?: AppOptions, cb?: ReadyCallback) {
     // Set default options
-    const ready = cb || function() {};
     const opts = Object.assign(
         {
             // Default options
@@ -17,7 +16,12 @@ function main(options?: any, cb?: any) {
         options
     );
 
+    const ready = cb || function() {};
+
     const logger = pino();
+    opts.logger = logger;
+
+    const app = makeApp(opts);
 
     // Server state
     let server: Server;
@@ -42,46 +46,14 @@ function main(options?: any, cb?: any) {
             });
         }
     }
+
     process.on("uncaughtException", unhandledError);
     process.on("unhandledRejection", unhandledError);
 
-    // Create the express app
-    const app = express();
-
-    // Common middleware
-    // app.use(/* ... */)
-    app.use(pinoHttp({ logger }));
-
-    // Register routes
-    // @NOTE: require here because this ensures that even syntax errors
-    // or other startup related errors are caught logged and debuggable.
-    // Alternatively, you could setup external log handling for startup
-    // errors and handle them outside the node process.  I find this is
-    // better because it works out of the box even in local development.
-    routes(app, opts);
-
-    // Common error handlers
-    app.use(<RequestHandler>function fourOhFourHandler(req, res, next) {
-        next(httpErrors(404, `Route not found: ${req.url}`));
-    });
-    app.use(<ErrorRequestHandler>(
-        function fiveHundredHandler(err, req, res, next) {
-            if (err.status >= 500) {
-                logger.error(err);
-            }
-            res.status(err.status || 500).json({
-                messages: [
-                    {
-                        code: err.code || "InternalServerError",
-                        message: err.message,
-                    },
-                ],
-            });
-        }
-    ));
-
     // Start server
-    server = app.listen(opts.port, opts.host, function(err: any) {
+    server = app.listen(Number.parseInt(opts.port, 10), opts.host, function(
+        err: any
+    ) {
         if (err) {
             return ready(err, app, server);
         }
