@@ -15,6 +15,7 @@
     "dependencies": {
         "express": "^4.17.1",
         "http-errors": "^1.7.3",
+        "jsonwebtoken": "^8.5.1",
         "passport": "^0.4.0",
         "pino": "^5.13.2",
         "pino-http": "^4.3.0",
@@ -25,6 +26,7 @@
         "@types/frisby": "^2.0.6",
         "@types/http-errors": "^1.6.2",
         "@types/jest": "^24.0.18",
+        "@types/jsonwebtoken": "^8.3.3",
         "@types/pino": "^5.8.10",
         "@types/pino-http": "^4.3.0",
         "@types/supertest": "^2.0.8",

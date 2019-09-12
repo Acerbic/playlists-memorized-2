@@ -17,3 +17,5 @@ it("should return hello string", () => {
     });
 });
 */
+
+it("is a stub", done => done());
