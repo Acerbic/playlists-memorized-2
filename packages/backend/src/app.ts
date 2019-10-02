@@ -3,6 +3,17 @@
  */
 
 import express, { RequestHandler, ErrorRequestHandler } from "express";
+import dotenv from "dotenv";
+switch (process.env.NODE_ENV) {
+    case "development":
+        dotenv.config();
+        break;
+    case "test":
+        dotenv.config({
+            path: ".env.test",
+        });
+        break;
+}
 import httpErrors from "http-errors";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
@@ -30,7 +41,16 @@ export default function makeApp(options?: AppOptions) {
     // Common middleware
     // app.use(/* ... */)
     opts.logger && app.use(pinoHttp({ logger: opts.logger }));
-
+    app.use(
+        express.json(/*{
+            // strict: false,
+            verify: function(req, res, buf, encoding) {
+                if (buf && buf.length) {
+                    (req as any).rawBody = buf.toString(encoding || "utf8");
+                }
+            },
+        }*/)
+    );
     // Register routes
     // @NOTE: require here because this ensures that even syntax errors
     // or other startup related errors are caught logged and debuggable.
