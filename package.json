@@ -3,5 +3,6 @@
     "version": "1.0.0",
     "author": "Anthony Cerbic <kuzzdra@gmail.com>",
     "license": "MIT",
-    "private": true
+    "private": true,
+    "dependencies": {}
 }
