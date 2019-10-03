@@ -1,10 +1,7 @@
 import jwt from "jsonwebtoken";
-import request, { Response } from "supertest";
+import request from "supertest";
 import makeApp from "../../../src/app";
-import {
-    AuthorizedGoogleSession,
-    AnonymousSession,
-} from "../../typings/definitions";
+import { AuthorizedGoogleSession, AnonymousSession } from "../../session";
 import {
     ValidateSessionRequestBody,
     ValidateSessionResponseBody,
@@ -41,6 +38,18 @@ describe("/validate_session endpoint", () => {
             .post(VALIDATE_SESSION_ENDPOINT)
             .send("asdasd")
             .expect(400));
+    it("should generate an anonymous session on error", () => {
+        request(app)
+            .post(VALIDATE_SESSION_ENDPOINT)
+            .send("??")
+            .expect(400)
+            .then(res => {
+                expect(res.body).toStrictEqual({
+                    success: false,
+                    anonymousToken: expect.stringMatching(/.+/),
+                });
+            });
+    });
 
     it("should fail on unknown token", () => {
         const token: AnonymousSession = {
@@ -53,13 +62,11 @@ describe("/validate_session endpoint", () => {
         return request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
             .send(req)
-            .set("Content-Type", "application/json")
             .then(res => {
                 expect(res.ok).toBe(true);
-                console.log(JSON.stringify(res.body));
                 expect(res.body as ValidateSessionResponseBody).toStrictEqual({
                     success: false,
-                    anonymousToken: "????????",
+                    anonymousToken: expect.stringMatching(/.+/),
                 });
             });
     });
