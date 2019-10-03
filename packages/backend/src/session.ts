@@ -26,42 +26,21 @@ export type UserSession = AuthorizedGoogleSession | AnonymousSession;
 export async function decode_session_token(
     token: string
 ): Promise<UserSession> {
-    const sessionPromise: Promise<UserSession> = new Promise(
-        (resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET!, (err, session) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.JWT_SECRET!, (err, session) => {
+            if (err) {
+                reject(err);
+                return;
+            }
 
-                if (typeof session !== "object") {
-                    reject(
-                        new Error("Token string was not decoded into object")
-                    );
-                    return;
-                }
+            if (typeof session !== "object") {
+                reject(new Error("Token string was not decoded into object"));
+                return;
+            }
 
-                resolve(session as UserSession);
-            });
-        }
-    );
-
-    // const session: UserSession = await sessionPromise;
-    // const userId = session.userId;
-    // TODO:
-    // check storage to confirm that this userId session is not stale
-    // for anonymous user, check session expiration date
-    // for google authenticated user, check with the google services that
-    //      access tokens are still valid (update possibly)
-    // switch (session.type) {
-    //     case "anonymous":
-    //     case "google":
-    //     default:
-    //         // unknown or empty type: error
-    //         return;
-    // }
-
-    return sessionPromise;
+            resolve(session as UserSession);
+        });
+    });
 }
 
 export async function create_anonymous_session(): Promise<AnonymousSession> {

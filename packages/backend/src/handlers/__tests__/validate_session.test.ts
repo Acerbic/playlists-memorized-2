@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import request from "supertest";
-import makeApp from "../../../src/app";
+import makeApp from "../../app";
 import { AuthorizedGoogleSession, AnonymousSession } from "../../session";
 import {
     ValidateSessionRequestBody,
     ValidateSessionResponseBody,
 } from "../validate_session";
+import { add_new_user, UserDataAnonymous, UserDataGoogle } from "../../storage";
 
 const app = makeApp();
 
@@ -63,7 +64,7 @@ describe("/validate_session endpoint", () => {
             .post(VALIDATE_SESSION_ENDPOINT)
             .send(req)
             .then(res => {
-                expect(res.ok).toBe(true);
+                expect(res.ok).toBe(false);
                 expect(res.body as ValidateSessionResponseBody).toStrictEqual({
                     success: false,
                     anonymousToken: expect.stringMatching(/.+/),
@@ -71,10 +72,14 @@ describe("/validate_session endpoint", () => {
             });
     });
 
-    it("should confirm a valid token", () => {
+    it("should confirm a valid token", async () => {
+        const userId = await add_new_user("google", <UserDataGoogle>{
+            accessToken: "123",
+            refreshToken: "456",
+        });
         const token: AuthorizedGoogleSession = {
             type: "google",
-            userId: "00000",
+            userId: userId,
             name: "Name Lastname",
             email: "example@example.com",
         };
