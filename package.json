@@ -4,5 +4,8 @@
     "author": "Anthony Cerbic <kuzzdra@gmail.com>",
     "license": "MIT",
     "private": true,
-    "dependencies": {}
+    "dependencies": {},
+    "scripts": {
+        "install": "cd packages/backend && yarn && cd ../../packages/frontend && yarn"
+    }
 }

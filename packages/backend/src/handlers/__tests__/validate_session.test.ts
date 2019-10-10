@@ -37,7 +37,7 @@ describe("/validate_session endpoint", () => {
     it("should contain proper token argument 4", () =>
         request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .send("asdasd")
+            .send("some string value")
             .expect(400));
     it("should generate an anonymous session on error", () => {
         request(app)
@@ -102,7 +102,7 @@ describe("/validate_session endpoint", () => {
             type: "google",
             userId: "00000",
             name: "Name Lastname",
-            email: "example@example.com",
+            email: "example@example.com1",
         };
 
         const encoded = jwt.sign(token, process.env.JWT_SECRET!);
