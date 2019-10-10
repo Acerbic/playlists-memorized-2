@@ -6,6 +6,7 @@
     "private": true,
     "dependencies": {},
     "scripts": {
-        "install": "cd packages/backend && yarn && cd ../../packages/frontend && yarn"
+        "install": "cd packages/backend && yarn && cd ../../packages/frontend && yarn",
+        "test": "exit 1"
     }
 }

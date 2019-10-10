@@ -5,14 +5,16 @@ import { AuthorizedGoogleSession, AnonymousSession } from "../../session";
 import {
     ValidateSessionRequestBody,
     ValidateSessionResponseBody,
+    MALFORMED_SESSION_TOKEN,
+    EXPIRED_SESSION_TOKEN,
 } from "../validate_session";
-import { add_new_user, UserDataAnonymous, UserDataGoogle } from "../../storage";
+import { add_new_user, UserDataGoogle } from "../../storage";
 
 const app = makeApp();
 
 const VALIDATE_SESSION_ENDPOINT = "/validate_session";
 
-describe("/validate_session endpoint", () => {
+describe("route /validate_session", () => {
     beforeAll(() => {});
 
     it("should not respond to GET method", () =>
@@ -39,18 +41,6 @@ describe("/validate_session endpoint", () => {
             .post(VALIDATE_SESSION_ENDPOINT)
             .send("some string value")
             .expect(400));
-    it("should generate an anonymous session on error", () => {
-        request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
-            .send("??")
-            .expect(400)
-            .then(res => {
-                expect(res.body).toStrictEqual({
-                    success: false,
-                    anonymousToken: expect.stringMatching(/.+/),
-                });
-            });
-    });
 
     it("should fail on unknown token", () => {
         const token: AnonymousSession = {
@@ -67,7 +57,8 @@ describe("/validate_session endpoint", () => {
                 expect(res.ok).toBe(false);
                 expect(res.body as ValidateSessionResponseBody).toStrictEqual({
                     success: false,
-                    anonymousToken: expect.stringMatching(/.+/),
+                    errorCode: MALFORMED_SESSION_TOKEN,
+                    errorMsg: expect.anything(),
                 });
             });
     });
@@ -97,12 +88,16 @@ describe("/validate_session endpoint", () => {
             });
     });
 
-    it("should fail an outdated valid token", () => {
+    it("should fail an outdated valid token", async () => {
+        const userId = await add_new_user("google", <UserDataGoogle>{
+            accessToken: "123",
+            refreshToken: "456",
+        });
         const token: AuthorizedGoogleSession = {
             type: "google",
-            userId: "00000",
+            userId: userId,
             name: "Name Lastname",
-            email: "example@example.com1",
+            email: "example@example.com",
         };
 
         const encoded = jwt.sign(token, process.env.JWT_SECRET!);
@@ -110,9 +105,11 @@ describe("/validate_session endpoint", () => {
             .post(VALIDATE_SESSION_ENDPOINT)
             .send({ token: encoded } as ValidateSessionRequestBody)
             .then(res => {
-                expect(res.ok).toBe(true);
+                expect(res.ok).toBe(false);
                 expect<ValidateSessionResponseBody>(res.body).toStrictEqual({
                     success: false,
+                    errorCode: EXPIRED_SESSION_TOKEN,
+                    errorMsg: expect.anything(),
                 });
             });
     });

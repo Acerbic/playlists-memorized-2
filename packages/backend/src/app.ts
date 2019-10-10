@@ -3,6 +3,9 @@
  */
 
 import express, { RequestHandler, ErrorRequestHandler } from "express";
+
+// loading configs from file for dev and test environments
+// set the appropriate env variables on productions in deployment pipeline!
 import dotenv from "dotenv";
 switch (process.env.NODE_ENV) {
     case "development":
@@ -14,9 +17,14 @@ switch (process.env.NODE_ENV) {
         });
         break;
 }
+
+// logging
 import httpErrors from "http-errors";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
+
+// passport.js
+import passportInitialize from "./passport";
 
 import routes from "./routes";
 
@@ -51,6 +59,11 @@ export default function makeApp(options?: AppOptions) {
             },
         }*/)
     );
+
+    passportInitialize(
+        "http://backend.localhost.com:8000/auth/google/callback"
+    );
+
     // Register routes
     // @NOTE: require here because this ensures that even syntax errors
     // or other startup related errors are caught logged and debuggable.
