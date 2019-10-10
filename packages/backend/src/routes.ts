@@ -19,6 +19,7 @@ export default function(app: Express, opts: AppOptions) {
     app.get(
         "/auth/google/callback",
         passport.authenticate("google", {
+            // TODO: fixme - replace fixed URL with param from frontend
             failureRedirect: "/login",
             session: false,
         }),
