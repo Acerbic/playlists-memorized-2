@@ -6,7 +6,13 @@
     "private": true,
     "dependencies": {},
     "scripts": {
-        "install": "cd packages/backend && yarn && cd ../../packages/frontend && yarn",
+        "install-all": "cd packages/backend && yarn && cd ../../packages/frontend && yarn",
+        "dev:backend": "cd packages/backend && yarn dev",
+        "dev:frontend": "cd packages/frontend && yarn dev",
+        "dev": "concurrently npm:dev:*",
         "test": "exit 1"
+    },
+    "devDependencies": {
+        "concurrently": "^5.0.0"
     }
 }

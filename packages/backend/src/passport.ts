@@ -19,8 +19,12 @@ export function initialize(callbackURL: string) {
                 callbackURL,
                 accessType: "offline",
             },
+            // User verification function
+            // from "profile" and with accessToken for extra data fetching,
+            // construct a user entity to be passed for the middleware following
+            // successful authentication (of fail authentication)
+            // In the following  middleware, see req.user field
             function(accessToken, refreshToken, profile, cb) {
-                console.warn("Verity function!");
                 return cb(undefined, "usr-id");
                 // User.findOrCreate({ googleId: profile.id }, function(
                 //     err,

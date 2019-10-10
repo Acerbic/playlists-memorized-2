@@ -6,7 +6,7 @@ import passport from "passport";
 export default function(app: Express, opts: AppOptions) {
     // Setup routes, middleware, and handlers
     app.post("/validate_session", validate_session);
-    // initiate login process
+    // initiate login process --> will redirect to google login screen
     app.get(
         "/auth/google",
         // function(req, res, next) {
@@ -24,7 +24,12 @@ export default function(app: Express, opts: AppOptions) {
         }),
         function(req, res) {
             // Successful authentication, redirect home.
-            res.redirect("/");
+
+            // user account procured from authentication by verification
+            // function in strategy definition
+            const user = req.user;
+            // TODO: fixme - replace fixed URL with param from frontend
+            res.redirect("http://localhost:3000/login_success");
         }
     );
 }

@@ -7,9 +7,10 @@
     "keywords": [],
     "scripts": {
         "build": "tsc --incremental -p ./tsconfig.build.json",
-        "watch": "tsc --watch --incremental -p ./tsconfig.build.json",
+        "tsc:watch": "tsc --watch --incremental -p ./tsconfig.build.json",
         "start": "node ./dist/server.js | pino-pretty",
-        "dev:watch": "concurrently \"yarn watch\" \"nodemon dist/server.js | pino-pretty \"",
+        "dev:watch": "nodemon --inspect=51234 dist/server.js | pino-pretty ",
+        "dev": "concurrently \"yarn tsc:watch\" \"yarn dev:watch\"",
         "test": "jest"
     },
     "dependencies": {

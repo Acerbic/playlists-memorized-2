@@ -6,6 +6,7 @@ export default () => {
         <Row>
             <Col>
                 <div>Hello World!</div>
+                <a href="http://localhost:8000/auth/google">LOGIN</a>
             </Col>
         </Row>
     );
