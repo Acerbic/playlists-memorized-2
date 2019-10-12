@@ -17,7 +17,6 @@ export function initialize(callbackURL: string) {
                 clientID: process.env.GOOGLE_CLIENT_ID!,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
                 callbackURL,
-                accessType: "offline",
             },
             // User verification function
             // from "profile" and with accessToken for extra data fetching,

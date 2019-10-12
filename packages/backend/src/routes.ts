@@ -1,6 +1,7 @@
 import { Express } from "express";
 import validate_session from "./handlers/validate_session";
 import { AppOptions } from "./app";
+
 import passport from "passport";
 
 export default function(app: Express, opts: AppOptions) {
@@ -12,7 +13,11 @@ export default function(app: Express, opts: AppOptions) {
         // function(req, res, next) {
         //     next();
         // },
-        passport.authenticate("google", { scope: ["profile"], session: false })
+        passport.authenticate("google", {
+            scope: ["profile"],
+            session: false,
+            accessType: "offline",
+        })
     );
 
     // receive redirect from google oauth.
