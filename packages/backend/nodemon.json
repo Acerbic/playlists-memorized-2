@@ -1,6 +1,12 @@
 {
     "ext": "js,json,env",
-    "ignore": ["./node_modules", "./src", "./.vscode"],
+    "ignore": [
+        "./node_modules",
+        "./src",
+        "./.vscode",
+        "./**/__tests__",
+        "./**/*.test.*"
+    ],
     "env": {
         "NODE_ENV": "development"
     },
