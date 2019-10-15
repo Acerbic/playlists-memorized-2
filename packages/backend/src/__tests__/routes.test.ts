@@ -1,40 +1,14 @@
 import request from "supertest";
-import { OAuth2, oauth2tokenCallback } from "oauth";
-import { Strategy } from "passport-oauth2";
-import makeApp from "../app";
+import { oauth2tokenCallback } from "oauth";
 
-// mocking "../passport" to replace verify callback with our mock function
-import passport from "passport";
 import {
-    Strategy as GoogleStrategy,
-    Profile,
-    VerifyCallback,
-} from "passport-google-oauth20";
-const mockProfileVerify = jest.fn<
-    void,
-    [string, string, Profile, VerifyCallback]
->((access_token, refresh_token, profile, done) => done(undefined, "usr-id"));
+    mock_PassportInitialize,
+    mock_PassportGoogleOauth,
+    unmock_PassportGoogleOauth,
+} from "../__tests__/_utils";
+const mockVerify = mock_PassportInitialize(); // must be executed before `import makeApp`
 
-jest.mock("../passport", () => ({
-    __esModule: true,
-    default: (callbackURL: string) => {
-        passport.use(
-            new GoogleStrategy(
-                {
-                    clientID: process.env.GOOGLE_CLIENT_ID!,
-                    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-                    callbackURL,
-                },
-                // User verification function
-                // from "profile" and with accessToken for extra data fetching,
-                // construct a user entity to be passed for the middleware following
-                // successful authentication (of fail authentication)
-                // In the following  middleware, see req.user field
-                mockProfileVerify
-            )
-        );
-    },
-}));
+import makeApp from "../app";
 const app = makeApp();
 
 describe("route /auth/google", () => {
@@ -60,11 +34,12 @@ describe("route /auth/google/callback", () => {
             .expect("Location", "/login"));
 
     it("should redirect to login success page on success", () => {
-        let mockGetOAuthAccessToken = (jest.spyOn(
-            OAuth2.prototype,
-            "getOAuthAccessToken"
-        ) as any) as jest.SpyInstance<void, [string, any, oauth2tokenCallback]>;
-        mockGetOAuthAccessToken.mockImplementationOnce(
+        const mocks = mock_PassportGoogleOauth();
+        mockVerify.mockImplementationOnce(
+            (access_token, refresh_token, profile, done): any =>
+                done(undefined, "mock-usr-id")
+        );
+        mocks.mockGetOAuthAccessToken.mockImplementationOnce(
             (
                 code: string,
                 params: any,
@@ -78,15 +53,11 @@ describe("route /auth/google/callback", () => {
                 );
             }
         );
-
-        type callBack = (err: any, profile: any) => void;
-        let mockLoadUserProfile = jest.spyOn(
-            Strategy.prototype,
-            "_loadUserProfile" as any
-        ) as jest.SpyInstance<void, [any, callBack]>;
-
-        mockLoadUserProfile.mockImplementationOnce(
-            (access_token: string, cb: callBack): void => {
+        mocks.mockLoadUserProfile.mockImplementationOnce(
+            (
+                access_token: string,
+                cb: (err: any, profile: any) => void
+            ): void => {
                 cb(null, { profile: "mock_profile" });
             }
         );
@@ -102,17 +73,18 @@ describe("route /auth/google/callback", () => {
             .expect(302)
             .expect("Location", "http://localhost:3000/login_success")
             .then(() => {
-                expect(mockGetOAuthAccessToken.mock.calls.length).toEqual(1);
-                expect(mockLoadUserProfile.mock.calls.length).toEqual(1);
-                expect(mockProfileVerify.mock.calls.length).toEqual(1);
-                expect(mockProfileVerify.mock.calls[0][2]).toStrictEqual({
+                expect(mocks.mockGetOAuthAccessToken.mock.calls.length).toEqual(
+                    1
+                );
+                expect(mocks.mockLoadUserProfile.mock.calls.length).toEqual(1);
+                expect(mockVerify.mock.calls.length).toEqual(1);
+                expect(mockVerify.mock.calls[0][2]).toStrictEqual({
                     profile: "mock_profile",
                 });
             })
             .finally(() => {
-                mockGetOAuthAccessToken.mockRestore();
-                mockLoadUserProfile.mockRestore();
-                mockProfileVerify.mockClear();
+                unmock_PassportGoogleOauth(mocks);
+                mockVerify.mockClear();
             });
     });
 });

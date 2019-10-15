@@ -1,5 +1,5 @@
 /**
- * Initialize authentication with passport
+ * Initialize authentication with Passport.js
  */
 
 import passport from "passport";
@@ -24,6 +24,7 @@ export function initialize(callbackURL: string) {
             // successful authentication (of fail authentication)
             // In the following  middleware, see req.user field
             function(accessToken, refreshToken, profile, cb) {
+                // TODO: fetch user entity
                 return cb(undefined, "usr-id");
                 // User.findOrCreate({ googleId: profile.id }, function(
                 //     err,
