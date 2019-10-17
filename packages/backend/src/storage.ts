@@ -3,33 +3,27 @@
  */
 
 import uuid from "uuid/v4";
-
-export interface UserDataGoogle {
-    accessToken: any;
-    refreshToken: any;
-}
-
-export interface UserDataAnonymous {
-    createdAt: Date;
-}
+import { Profile } from "passport-google-oauth20";
 
 interface UserRecordBase {
     userId: string;
     type: string;
-    data: any;
 }
 
 interface UserRecordGoogle extends UserRecordBase {
     type: "google";
-    data: UserDataGoogle;
+    googleUserId: string;
+    accessToken: any;
+    refreshToken: any;
 }
 interface UserRecordAnonymous extends UserRecordBase {
     type: "anonymous";
-    data: UserDataAnonymous;
+    createdAt: Date;
 }
 
 export type UserRecord = UserRecordAnonymous | UserRecordGoogle;
 
+// FIXME:
 const storage = new Map<string, UserRecord>();
 
 export async function get_user(userId: string): Promise<UserRecord> {
@@ -45,9 +39,14 @@ export async function get_user(userId: string): Promise<UserRecord> {
     }
 }
 
+/**
+ * Creates a new in-app user based on data,
+ * @returns string - new user (in-app) id
+ */
 export async function add_new_user(
-    type: UserRecord["type"],
-    data: UserRecord["data"]
+    record:
+        | Omit<UserRecordAnonymous, "userId">
+        | Omit<UserRecordGoogle, "userId">
 ): Promise<string> {
     // TODO: STUB:
 
@@ -58,9 +57,51 @@ export async function add_new_user(
         userId = uuid();
     }
     if (count <= 0) {
-        return Promise.reject(new Error("Failed to create a new ID for user"));
+        throw new Error("Failed to create a new ID for user");
     }
 
-    storage.set(userId, <UserRecord>{ userId, data, type });
-    return Promise.resolve(userId);
+    switch (record.type) {
+        case "anonymous":
+            storage.set(userId, {
+                userId,
+                type: record.type,
+                createdAt: new Date("now"),
+            });
+            break;
+        case "google":
+            storage.set(userId, {
+                userId,
+                ...record,
+            });
+            break;
+        default:
+            throw new Error("Unknown session type");
+    }
+
+    return userId;
+}
+
+export async function find_or_create_google_user(
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile
+): Promise<UserRecordGoogle> {
+    const googleUserId = profile.id;
+
+    // FIXME:
+    const userRecord = Array.from(storage.values()).find(
+        record =>
+            record.type === "google" && record.googleUserId === googleUserId
+    ) as UserRecordGoogle | undefined;
+
+    if (userRecord) {
+        return userRecord;
+    }
+
+    return add_new_user({
+        type: "google",
+        accessToken,
+        refreshToken,
+        googleUserId,
+    }).then(get_user) as Promise<UserRecordGoogle>;
 }

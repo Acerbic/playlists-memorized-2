@@ -1,3 +1,7 @@
+/**
+ * Not tests themselves, but reusable utility functions to build / execute tests
+ */
+
 import passport from "passport";
 import { OAuth2, oauth2tokenCallback } from "oauth";
 import { Strategy } from "passport-oauth2";
@@ -19,32 +23,42 @@ export interface PassportMockFns {
     >;
 }
 
+/**
+ * mocks passport configuration module - used to inject mock function as verify
+ * function before app() is initialized
+ * @returns jest.Mock - mock function (without implementation) that is inserted
+ *          as verify function during PassportJS Strategy configuration
+ */
 export function mock_PassportInitialize(): jest.Mock<
     void,
     [string, string, Profile, VerifyCallback]
 > {
     const mockVerify = jest.fn();
+    const mockModule: Record<string, any> = {
+        __esModule: true,
+        configure: (callbackURL: string) => {
+            passport.use(
+                new GoogleStrategy(
+                    {
+                        clientID: process.env.GOOGLE_CLIENT_ID!,
+                        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+                        callbackURL,
+                    },
+                    mockVerify
+                )
+            );
+        },
+    };
+    mockModule.default = mockModule.configure;
 
-    mockVerify &&
-        jest.doMock("../passport", () => ({
-            __esModule: true,
-            default: (callbackURL: string) => {
-                passport.use(
-                    new GoogleStrategy(
-                        {
-                            clientID: process.env.GOOGLE_CLIENT_ID!,
-                            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-                            callbackURL,
-                        },
-                        mockVerify
-                    )
-                );
-            },
-        }));
+    mockVerify && jest.doMock("../passport", () => mockModule);
     return mockVerify;
 }
 
-// mocking "../passport" to replace verify callback with our mock function
+/**
+ * Mocks PassportJS functions that do network queries to Google servers.
+ * @returns PassportMockFns - an object, containing the mock functions generated.
+ */
 export function mock_PassportGoogleOauth(): PassportMockFns {
     let mockGetOAuthAccessToken = (jest.spyOn(
         OAuth2.prototype,
@@ -62,6 +76,10 @@ export function mock_PassportGoogleOauth(): PassportMockFns {
     };
 }
 
+/**
+ * Undo mock_PassportGoogleOauth
+ * @param mocks the object returned by `mock_PassportGoogleOauth` earlier.
+ */
 export function unmock_PassportGoogleOauth(mocks: PassportMockFns) {
     mocks.mockLoadUserProfile.mockRestore();
     mocks.mockGetOAuthAccessToken.mockRestore();

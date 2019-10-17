@@ -8,6 +8,8 @@ export interface AuthorizedGoogleSession {
     type: "google";
     // In-app user id
     userId: string;
+    // Google id;
+    userGoogleId: string;
     email?: string;
     name?: string;
 }

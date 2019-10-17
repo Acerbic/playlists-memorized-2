@@ -10,9 +10,6 @@ export default function(app: Express, opts: AppOptions) {
     // initiate login process --> will redirect to google login screen
     app.get(
         "/auth/google",
-        // function(req, res, next) {
-        //     next();
-        // },
         passport.authenticate("google", {
             scope: ["profile"],
             session: false,

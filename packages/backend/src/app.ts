@@ -24,9 +24,10 @@ import { Logger } from "pino";
 import pinoHttp from "pino-http";
 
 // passport.js
-import passportInitialize from "./passport";
+import passportConfigure from "./passport";
 
 import routes from "./routes";
+import passport from "passport";
 
 export interface AppOptions {
     host: string;
@@ -47,22 +48,11 @@ export default function makeApp(options?: AppOptions) {
     const app = express();
 
     // Common middleware
-    // app.use(/* ... */)
     opts.logger && app.use(pinoHttp({ logger: opts.logger }));
-    app.use(
-        express.json(/*{
-            // strict: false,
-            verify: function(req, res, buf, encoding) {
-                if (buf && buf.length) {
-                    (req as any).rawBody = buf.toString(encoding || "utf8");
-                }
-            },
-        }*/)
-    );
+    app.use(express.json());
 
-    passportInitialize(
-        "http://backend.localhost.com:8000/auth/google/callback"
-    );
+    passportConfigure("http://backend.localhost.com:8000/auth/google/callback");
+    app.use(passport.initialize());
 
     // Register routes
     // @NOTE: require here because this ensures that even syntax errors

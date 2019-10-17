@@ -6,9 +6,8 @@ import {
     ValidateSessionRequestBody,
     ValidateSessionResponseBody,
     MALFORMED_SESSION_TOKEN,
-    EXPIRED_SESSION_TOKEN,
 } from "../validate_session";
-import { add_new_user, UserDataGoogle } from "../../storage";
+import { add_new_user } from "../../storage";
 
 const app = makeApp();
 
@@ -64,13 +63,16 @@ describe("route /validate_session", () => {
     });
 
     it("should confirm a valid token", async () => {
-        const userId = await add_new_user("google", <UserDataGoogle>{
+        const userId = await add_new_user({
+            type: "google",
+            googleUserId: "999888qwerty",
             accessToken: "123",
             refreshToken: "456",
         });
         const token: AuthorizedGoogleSession = {
             type: "google",
             userId: userId,
+            userGoogleId: "1234567",
             name: "Name Lastname",
             email: "example@example.com",
         };
@@ -88,29 +90,8 @@ describe("route /validate_session", () => {
             });
     });
 
-    it("should fail an outdated valid token", async () => {
-        const userId = await add_new_user("google", <UserDataGoogle>{
-            accessToken: "123",
-            refreshToken: "456",
-        });
-        const token: AuthorizedGoogleSession = {
-            type: "google",
-            userId: userId,
-            name: "Name Lastname",
-            email: "example@example.com",
-        };
-
-        const encoded = jwt.sign(token, process.env.JWT_SECRET!);
-        return request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
-            .send({ token: encoded } as ValidateSessionRequestBody)
-            .then(res => {
-                expect(res.ok).toBe(false);
-                expect<ValidateSessionResponseBody>(res.body).toStrictEqual({
-                    success: false,
-                    errorCode: EXPIRED_SESSION_TOKEN,
-                    errorMsg: expect.anything(),
-                });
-            });
-    });
+    it.todo("should refresh valid token if outdated");
+    it.todo(
+        "should return an error code if access token invalid and refresh failed"
+    );
 });

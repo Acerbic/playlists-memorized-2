@@ -1,16 +1,17 @@
 /**
- * Initialize authentication with Passport.js
+ * Configure authentication with Passport.js
  */
 
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { find_or_create_google_user } from "./storage";
 
 /**
- * Initialize passport JS server-wise subsystem;
+ * Configure passport JS server-wise subsystem;
  * @param callbackURL URL to which Google will send user's agent after consent
  * screen with access token or error message
  */
-export function initialize(callbackURL: string) {
+export function configure(callbackURL: string) {
     passport.use(
         new GoogleStrategy(
             {
@@ -24,19 +25,13 @@ export function initialize(callbackURL: string) {
             // successful authentication (of fail authentication)
             // In the following  middleware, see req.user field
             function(accessToken, refreshToken, profile, cb) {
-                // TODO: fetch user entity
-                return cb(undefined, "usr-id");
-                // User.findOrCreate({ googleId: profile.id }, function(
-                //     err,
-                //     user
-                // ) {
-                //     return cb(err, user);
-                // });
+                // fetch user entity
+                find_or_create_google_user(accessToken, refreshToken, profile)
+                    .then(userRecord => cb(undefined, userRecord))
+                    .catch(error => cb(error, false));
             }
         )
     );
-
-    passport.initialize();
 }
 
-export default initialize;
+export default configure;

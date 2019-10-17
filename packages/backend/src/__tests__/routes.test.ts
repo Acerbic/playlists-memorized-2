@@ -17,6 +17,8 @@ describe("route /auth/google", () => {
             .get("/auth/google")
             .expect(302)
             .expect("Location", /^https:\/\/accounts\.google\.com/));
+
+    it.todo("should fail if no destination redirect is provided");
 });
 
 describe("route /auth/google/callback", () => {
@@ -87,4 +89,7 @@ describe("route /auth/google/callback", () => {
                 mockVerify.mockClear();
             });
     });
+
+    it.todo("should create user account if there's no user for this login");
+    it.todo("should fetch existing account if the login is for existing user");
 });
