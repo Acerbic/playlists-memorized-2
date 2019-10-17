@@ -5,21 +5,11 @@ import {
     mock_PassportInitialize,
     mock_PassportGoogleOauth,
     unmock_PassportGoogleOauth,
-} from "../__tests__/_utils";
+} from "../../__tests__/_utils";
 const mockVerify = mock_PassportInitialize(); // must be executed before `import makeApp`
 
-import makeApp from "../app";
+import makeApp from "../../app";
 const app = makeApp();
-
-describe("route /auth/google", () => {
-    it("should redirect to google login screen", () =>
-        request(app)
-            .get("/auth/google")
-            .expect(302)
-            .expect("Location", /^https:\/\/accounts\.google\.com/));
-
-    it.todo("should fail if no destination redirect is provided");
-});
 
 describe("route /auth/google/callback", () => {
     it("should redirect to google login screen without args", () =>
@@ -28,14 +18,14 @@ describe("route /auth/google/callback", () => {
             .expect(302)
             .expect("Location", /^https:\/\/accounts\.google\.com/));
 
-    it("should redirect to error page on login error", () =>
+    it("should redirect to login finish page error", () =>
         request(app)
             .get("/auth/google/callback")
             .query({ error: "access_denied" })
             .expect(302)
             .expect("Location", "/login"));
 
-    it("should redirect to login success page on success", () => {
+    it("should redirect to login finish page on success", () => {
         const mocks = mock_PassportGoogleOauth();
         mockVerify.mockImplementationOnce(
             (access_token, refresh_token, profile, done): any =>
@@ -92,4 +82,5 @@ describe("route /auth/google/callback", () => {
 
     it.todo("should create user account if there's no user for this login");
     it.todo("should fetch existing account if the login is for existing user");
+    it.todo("should fail if missing redirect data");
 });
