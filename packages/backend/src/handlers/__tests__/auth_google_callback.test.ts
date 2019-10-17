@@ -1,10 +1,8 @@
 import request from "supertest";
-import { oauth2tokenCallback } from "oauth";
 import { Profile } from "passport-google-oauth20";
-
 import {
-    mock_PassportInitialize,
     mock_PassportGoogleOauth,
+    mock_PassportInitialize,
     unmock_PassportGoogleOauth,
 } from "../../__tests__/_utils";
 const mockVerify = mock_PassportInitialize(); // must be executed before `import makeApp`
@@ -12,7 +10,13 @@ const mockVerify = mock_PassportInitialize(); // must be executed before `import
 import makeApp from "../../app";
 const app = makeApp();
 
-import { reset_users_storage, find_google_user } from "../../storage";
+import {
+    find_google_user,
+    find_or_create_google_user,
+    reset_users_storage,
+    UserRecord,
+} from "../../storage";
+
 const { verify: originalVerify } = jest.requireActual("../../passport");
 
 // reusable template of profile
@@ -80,7 +84,7 @@ describe("route /auth/google/callback", () => {
 
     it("should create user account if there's no user for this login", async () => {
         const mocks = mock_PassportGoogleOauth(mock_user_profile);
-        mockVerify.mockImplementation(originalVerify);
+        mockVerify.mockImplementationOnce(originalVerify);
 
         expect(find_google_user(mock_user_profile)).resolves.toBeUndefined();
         try {
@@ -97,7 +101,36 @@ describe("route /auth/google/callback", () => {
         }
     });
 
-    it.todo("should fetch existing account if the login is for existing user");
+    it("should fetch existing account if the login is for existing user", async () => {
+        const mocks = mock_PassportGoogleOauth(mock_user_profile);
+        mockVerify.mockImplementationOnce(originalVerify);
+
+        expect(find_google_user(mock_user_profile)).resolves.toBeUndefined();
+        const record = await find_or_create_google_user(
+            "mock_access_token",
+            "mock_refresh_token",
+            mock_user_profile
+        );
+        expect(
+            find_google_user(mock_user_profile)
+        ).resolves.not.toBeUndefined();
+
+        try {
+            const res = await request(app)
+                .get("/auth/google/callback")
+                .query(mock_callback_query)
+                .expect(302);
+            const recordAfter: UserRecord | undefined = await find_google_user(
+                mock_user_profile
+            );
+            expect(recordAfter).not.toBeUndefined();
+            expect(recordAfter!.type).toBe("google");
+            expect(recordAfter!.userId).toBe(record!.userId);
+        } finally {
+            unmock_PassportGoogleOauth(mocks);
+            mockVerify.mockClear();
+        }
+    });
 
     it("should fail if missing redirect data", async () => {
         const mocks = mock_PassportGoogleOauth();
