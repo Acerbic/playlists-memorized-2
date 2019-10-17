@@ -57,9 +57,10 @@ export function mock_PassportInitialize(): jest.Mock<
 
 /**
  * Mocks PassportJS functions that do network queries to Google servers.
+ * @param profile - Google profile to be substituted in mock implementation.
  * @returns PassportMockFns - an object, containing the mock functions generated.
  */
-export function mock_PassportGoogleOauth(): PassportMockFns {
+export function mock_PassportGoogleOauth(profile?: Profile): PassportMockFns {
     let mockGetOAuthAccessToken = (jest.spyOn(
         OAuth2.prototype,
         "getOAuthAccessToken"
@@ -69,6 +70,22 @@ export function mock_PassportGoogleOauth(): PassportMockFns {
         Strategy.prototype,
         "_loadUserProfile" as any
     ) as jest.SpyInstance<void, [any, (err: any, profile: any) => void]>;
+
+    mockGetOAuthAccessToken.mockImplementation(
+        (code: string, params: any, callback: oauth2tokenCallback): void => {
+            callback(
+                null as any,
+                "mock_access_token",
+                "mock_refresh_token",
+                {}
+            );
+        }
+    );
+    mockLoadUserProfile.mockImplementation(
+        (access_token: string, cb: (err: any, profile: any) => void): void => {
+            cb(null, profile || { id: "mock google id" });
+        }
+    );
 
     return {
         mockGetOAuthAccessToken,

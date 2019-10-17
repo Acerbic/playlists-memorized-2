@@ -1,8 +1,5 @@
 import request from "supertest";
 
-// import { mock_PassportInitialize } from "../../__tests__/_utils";
-// const mockVerify = mock_PassportInitialize(); // must be executed before `import makeApp`
-
 import makeApp from "../../app";
 const app = makeApp();
 

@@ -18,4 +18,4 @@ it("should return hello string", () => {
 });
 */
 
-it("is a stub", done => done());
+it.todo("is a stub");

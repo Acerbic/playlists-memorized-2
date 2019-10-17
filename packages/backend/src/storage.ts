@@ -86,13 +86,7 @@ export async function find_or_create_google_user(
     refreshToken: string,
     profile: Profile
 ): Promise<UserRecordGoogle> {
-    const googleUserId = profile.id;
-
-    // FIXME:
-    const userRecord = Array.from(storage.values()).find(
-        record =>
-            record.type === "google" && record.googleUserId === googleUserId
-    ) as UserRecordGoogle | undefined;
+    const userRecord = await find_google_user(profile);
 
     if (userRecord) {
         return userRecord;
@@ -102,6 +96,28 @@ export async function find_or_create_google_user(
         type: "google",
         accessToken,
         refreshToken,
-        googleUserId,
+        googleUserId: profile.id,
     }).then(get_user) as Promise<UserRecordGoogle>;
+}
+
+/**
+ * Find a record for given Google user profile
+ * @param profile - Google user profile
+ * @returns UserRecordGoogle - record of existing user or undefined, if no user
+ * for this google profile is found
+ */
+export async function find_google_user(
+    profile: Profile
+): Promise<UserRecordGoogle | undefined> {
+    // FIXME:
+    return Array.from(storage.values()).find(
+        record => record.type === "google" && record.googleUserId === profile.id
+    ) as UserRecordGoogle | undefined;
+}
+
+/**
+ * Mostly for testing - purge all data and clear all users from storage
+ */
+export async function reset_users_storage() {
+    storage.clear();
 }
