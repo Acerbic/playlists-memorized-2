@@ -9,7 +9,7 @@
 import { Handler } from "express";
 
 import passport from "passport";
-import { UserRecord, UserRecordGoogle } from "../storage";
+import { UserRecordGoogle } from "../storage";
 import { create_user_session_token } from "../session";
 
 export default <Array<Handler>>[

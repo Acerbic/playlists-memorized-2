@@ -1,7 +1,11 @@
 import jwt from "jsonwebtoken";
 import request from "supertest";
 import makeApp from "../../app";
-import { AuthorizedGoogleSession, AnonymousSession } from "../../session";
+import {
+    AuthorizedGoogleSession,
+    AnonymousSession,
+    sign_session,
+} from "../../session";
 import {
     ValidateSessionRequestBody,
     ValidateSessionResponseBody,
@@ -66,6 +70,7 @@ describe("route /validate_session", () => {
         const userId = await add_new_user({
             type: "google",
             googleUserId: "999888qwerty",
+            profile: { id: "999888qwerty" } as any,
             accessToken: "123",
             refreshToken: "456",
         });
@@ -73,11 +78,10 @@ describe("route /validate_session", () => {
             type: "google",
             userId: userId,
             userGoogleId: "1234567",
-            name: "Name Lastname",
-            email: "example@example.com",
+            profile: { id: "1234567" } as any,
         };
 
-        const encoded = jwt.sign(token, process.env.JWT_SECRET!);
+        const encoded = await sign_session(token);
         const req: ValidateSessionRequestBody = { token: encoded };
         return request(app)
             .post(VALIDATE_SESSION_ENDPOINT)

@@ -7,7 +7,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 
 import { UserRecord } from "../storage";
-import { sign_session, UserSession } from "../session";
+import { create_temporary_auth_token } from "../session";
 import { NextFunction } from "connect";
 
 export interface LoginResults {
@@ -31,16 +31,11 @@ export default [
             try {
                 const dest =
                     req.query && JSON.parse(req.query.state).destination;
-                new URL(dest); // throws TypeError if dest is not a correct url
+                const u = new URL(dest); // throws TypeError if dest is not a correct url
 
-                const login_results: LoginResults = {
-                    success: false,
-                };
+                u.searchParams.set("success", "false");
 
-                // FIXME: use JWT query param instead of cookie.
-                res.cookie("login_results", JSON.stringify(login_results));
-
-                res.redirect(dest);
+                res.redirect(u.href);
             } catch (ex) {
                 res.status(400).end();
             }
@@ -51,28 +46,25 @@ export default [
 
         try {
             const dest = req.query && JSON.parse(req.query.state).destination;
-            new URL(dest); // throws TypeError if dest is not a correct url
+            const u = new URL(dest); // throws TypeError if dest is not a correct url
 
             // user account procured from authentication by verification
             // function in strategy definition
             const user: UserRecord | undefined = req.user as UserRecord;
 
-            // generate session token and pass to frontend as cookie on redirect
-            const login_results: LoginResults = user
-                ? {
-                      success: true,
-                      token: await sign_session(<UserSession>{
-                          type: "google",
-                          userId: user.userId,
-                      }),
-                  }
-                : {
-                      success: false,
-                  };
+            // generate temp token and pass to frontend as query param on
+            // redirect
+            if (user) {
+                u.searchParams.set("success", "true");
+                u.searchParams.set(
+                    "token",
+                    await create_temporary_auth_token(user)
+                );
+            } else {
+                u.searchParams.set("success", "false");
+            }
 
-            res.cookie("login_results", JSON.stringify(login_results));
-
-            res.redirect(dest);
+            res.redirect(u.href);
         } catch (ex) {
             res.status(400).end();
         }

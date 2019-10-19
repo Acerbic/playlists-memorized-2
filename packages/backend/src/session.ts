@@ -15,6 +15,7 @@ interface BaseSession {
 export interface AuthorizedGoogleSession extends BaseSession {
     type: "google";
     // Google data
+    userGoogleId: string;
     profile: Profile;
 }
 
@@ -74,6 +75,7 @@ export async function create_user_session_token({
         type,
         userId,
         profile,
+        userGoogleId: profile.id,
     };
     return sign_session(user_session);
 }

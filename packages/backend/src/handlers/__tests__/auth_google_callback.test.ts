@@ -1,5 +1,4 @@
 import request from "supertest";
-import setCookieParser from "set-cookie-parser";
 
 import { Profile } from "passport-google-oauth20";
 import {
@@ -11,8 +10,6 @@ const mockVerify = mock_PassportInitialize(); // must be executed before `import
 
 import makeApp from "../../app";
 const app = makeApp();
-
-import { LoginResults } from "../auth_google_callback";
 
 import {
     find_google_user,
@@ -61,17 +58,13 @@ describe("route /auth/google/callback", () => {
                 })
             )
             .expect(302)
-            .expect("Location", "http://localhost:3000/google_auth")
+            .expect("Location", /^http:\/\/localhost:3000\/google_auth/)
             .then(res => {
-                const cookies = setCookieParser(res.get("set-cookie"), {
-                    map: true,
-                });
-                expect(cookies).toHaveProperty("login_results");
-                const login_results: LoginResults = JSON.parse(
-                    cookies["login_results"].value
-                );
-                expect(login_results.success).toBeFalsy();
-                expect(login_results.token).toBeUndefined();
+                const loc = res.get("Location");
+                expect(loc).not.toBeFalsy();
+                const params = new Map(new URL(loc).searchParams);
+                expect(params.keys()).toContain("success");
+                expect(params.get("success")).toBe("false");
             });
     });
 
@@ -86,7 +79,7 @@ describe("route /auth/google/callback", () => {
             .get("/auth/google/callback")
             .query(mock_callback_query)
             .expect(302)
-            .expect("Location", "http://localhost:3000/google_auth")
+            .expect("Location", /^http:\/\/localhost:3000\/google_auth/)
             .then(res => {
                 expect(mocks.mockGetOAuthAccessToken.mock.calls.length).toEqual(
                     1
@@ -96,16 +89,12 @@ describe("route /auth/google/callback", () => {
                 expect(mockVerify.mock.calls[0][2]).toStrictEqual({
                     id: "mock google id",
                 });
-                const cookies = setCookieParser(res.get("set-cookie"), {
-                    map: true,
-                });
-                expect(cookies).toHaveProperty("login_results");
-                const login_results: LoginResults = JSON.parse(
-                    cookies["login_results"].value
-                );
-                expect(login_results.success).toBeTruthy();
-                expect(login_results.token).toBeTruthy();
-                expect(login_results.token!.length).toBeGreaterThan(0);
+                const loc = res.get("Location");
+                expect(loc).not.toBeFalsy();
+                const params = new Map(new URL(loc).searchParams);
+                expect(params.keys()).toContain("token");
+                expect(params.keys()).toContain("success");
+                expect(params.get("success")).toBe("true");
             })
             .finally(() => {
                 unmock_PassportGoogleOauth(mocks);
