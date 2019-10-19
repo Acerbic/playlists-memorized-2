@@ -1,4 +1,6 @@
 import request from "supertest";
+import setCookieParser from "set-cookie-parser";
+
 import { Profile } from "passport-google-oauth20";
 import {
     mock_PassportGoogleOauth,
@@ -9,6 +11,8 @@ const mockVerify = mock_PassportInitialize(); // must be executed before `import
 
 import makeApp from "../../app";
 const app = makeApp();
+
+import { LoginResults } from "../auth_google_callback";
 
 import {
     find_google_user,
@@ -47,12 +51,29 @@ describe("route /auth/google/callback", () => {
             .expect(302)
             .expect("Location", /^https:\/\/accounts\.google\.com/));
 
-    it("should redirect to login finish page error", () =>
-        request(app)
+    it("should redirect to login finish page on error", () => {
+        return request(app)
             .get("/auth/google/callback")
-            .query({ error: "access_denied" })
+            .query(
+                Object.assign({}, mock_callback_query, {
+                    code: undefined,
+                    error: "access_denied",
+                })
+            )
             .expect(302)
-            .expect("Location", "/login"));
+            .expect("Location", "http://localhost:3000/google_auth")
+            .then(res => {
+                const cookies = setCookieParser(res.get("set-cookie"), {
+                    map: true,
+                });
+                expect(cookies).toHaveProperty("login_results");
+                const login_results: LoginResults = JSON.parse(
+                    cookies["login_results"].value
+                );
+                expect(login_results.success).toBeFalsy();
+                expect(login_results.token).toBeUndefined();
+            });
+    });
 
     it("should redirect to login finish page on success", () => {
         const mocks = mock_PassportGoogleOauth();
@@ -66,7 +87,7 @@ describe("route /auth/google/callback", () => {
             .query(mock_callback_query)
             .expect(302)
             .expect("Location", "http://localhost:3000/google_auth")
-            .then(() => {
+            .then(res => {
                 expect(mocks.mockGetOAuthAccessToken.mock.calls.length).toEqual(
                     1
                 );
@@ -75,6 +96,16 @@ describe("route /auth/google/callback", () => {
                 expect(mockVerify.mock.calls[0][2]).toStrictEqual({
                     id: "mock google id",
                 });
+                const cookies = setCookieParser(res.get("set-cookie"), {
+                    map: true,
+                });
+                expect(cookies).toHaveProperty("login_results");
+                const login_results: LoginResults = JSON.parse(
+                    cookies["login_results"].value
+                );
+                expect(login_results.success).toBeTruthy();
+                expect(login_results.token).toBeTruthy();
+                expect(login_results.token!.length).toBeGreaterThan(0);
             })
             .finally(() => {
                 unmock_PassportGoogleOauth(mocks);
@@ -142,7 +173,9 @@ describe("route /auth/google/callback", () => {
         try {
             const res = await request(app)
                 .get("/auth/google/callback")
-                .query(Object.assign(mock_callback_query, { state: undefined }))
+                .query(
+                    Object.assign({}, mock_callback_query, { state: undefined })
+                )
                 .expect(400);
         } finally {
             unmock_PassportGoogleOauth(mocks);

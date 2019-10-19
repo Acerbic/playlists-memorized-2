@@ -2,22 +2,24 @@
  * Handles session-related activities
  */
 import jwt from "jsonwebtoken";
-import uuid from "uuid/v4";
+import { Profile } from "passport-google-oauth20";
 
-export interface AuthorizedGoogleSession {
-    type: "google";
+import { UserRecordGoogle, UserRecord } from "./storage";
+
+interface BaseSession {
+    type: string;
     // In-app user id
     userId: string;
-    // Google id;
-    userGoogleId: string;
-    email?: string;
-    name?: string;
 }
 
-export interface AnonymousSession {
+export interface AuthorizedGoogleSession extends BaseSession {
+    type: "google";
+    // Google data
+    profile: Profile;
+}
+
+export interface AnonymousSession extends BaseSession {
     type: "anonymous";
-    // In-app user id
-    userId: string;
 }
 
 export type UserSession = AuthorizedGoogleSession | AnonymousSession;
@@ -45,15 +47,6 @@ export async function decode_session_token(
     });
 }
 
-export async function create_anonymous_session(): Promise<AnonymousSession> {
-    //TODO: create record in db for anon sessions
-
-    return Promise.resolve(<AnonymousSession>{
-        type: "anonymous",
-        userId: uuid(),
-    });
-}
-
 export async function sign_session(session: UserSession): Promise<string> {
     return new Promise((resolve, reject) => {
         jwt.sign(session, process.env.JWT_SECRET!, (err, encoded) => {
@@ -64,4 +57,23 @@ export async function sign_session(session: UserSession): Promise<string> {
             }
         });
     });
+}
+
+export async function create_temporary_auth_token({ userId }: UserRecord) {
+    return jwt.sign({ userId }, process.env.JWT_SECRET!, {
+        expiresIn: 60,
+    });
+}
+
+export async function create_user_session_token({
+    type,
+    userId,
+    profile,
+}: UserRecordGoogle): Promise<string> {
+    const user_session: AuthorizedGoogleSession = {
+        type,
+        userId,
+        profile,
+    };
+    return sign_session(user_session);
 }

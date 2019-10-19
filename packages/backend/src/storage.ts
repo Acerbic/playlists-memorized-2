@@ -4,15 +4,17 @@
 
 import uuid from "uuid/v4";
 import { Profile } from "passport-google-oauth20";
+import { Express } from "express";
 
-interface UserRecordBase {
+interface UserRecordBase extends Express.User {
     userId: string;
     type: string;
 }
 
-interface UserRecordGoogle extends UserRecordBase {
+export interface UserRecordGoogle extends UserRecordBase {
     type: "google";
     googleUserId: string;
+    profile: Profile;
     accessToken: any;
     refreshToken: any;
 }
@@ -97,6 +99,7 @@ export async function find_or_create_google_user(
         accessToken,
         refreshToken,
         googleUserId: profile.id,
+        profile,
     }).then(get_user) as Promise<UserRecordGoogle>;
 }
 

@@ -8,7 +8,8 @@ import {
     Profile,
     VerifyCallback,
 } from "passport-google-oauth20";
-import { find_or_create_google_user } from "./storage";
+import { find_or_create_google_user, get_user } from "./storage";
+import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 
 // User verification function
 // from "profile" and with accessToken for extra data fetching,
@@ -41,6 +42,19 @@ export function configure(callbackURL: string) {
                 callbackURL,
             },
             verify
+        )
+    );
+    passport.use(
+        new JWTStrategy(
+            {
+                secretOrKey: process.env.JWT_SECRET!,
+                jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            },
+            (payload: any, done) => {
+                get_user(payload.userId)
+                    .then(user => done(null, user))
+                    .catch(err => done(err, false));
+            }
         )
     );
 }

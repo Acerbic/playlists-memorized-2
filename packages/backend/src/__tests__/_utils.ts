@@ -48,6 +48,7 @@ export function mock_PassportInitialize(): jest.Mock<
                 )
             );
         },
+        verify: mockVerify,
     };
     mockModule.default = mockModule.configure;
 
