@@ -10,15 +10,7 @@ const app = makeApp();
 import { create_temporary_auth_token } from "../../session";
 import { find_or_create_google_user } from "../../storage";
 
-// reusable template of profile
-const mock_user_profile: Profile = {
-    id: "some id",
-    provider: "google",
-    profileUrl: "",
-    _json: "",
-    _raw: "",
-    displayName: "Mock User",
-};
+import { mock_user_profile } from "../../__tests__/_utils";
 
 describe("route /start_session", () => {
     it("should fail if no Authorization header", () =>

@@ -5,6 +5,8 @@ import {
     mock_PassportGoogleOauth,
     mock_PassportInitialize,
     unmock_PassportGoogleOauth,
+    mock_user_profile,
+    mock_callback_query,
 } from "../../__tests__/_utils";
 const mockVerify = mock_PassportInitialize(); // must be executed before `import makeApp`
 
@@ -19,26 +21,6 @@ import {
 } from "../../storage";
 
 const { verify: originalVerify } = jest.requireActual("../../passport");
-
-// reusable template of profile
-const mock_user_profile: Profile = {
-    id: "some id",
-    provider: "google",
-    profileUrl: "",
-    _json: "",
-    _raw: "",
-    displayName: "Mock User",
-};
-
-// reusable query params as passed from Google to callback
-const mock_callback_query = {
-    code:
-        "4/sAEZzb8MDIBoTTFTyZiRJaB5bBysCQC0zBdrAqwu-KtK3XtsalBUH_ZgWiTz4_tHb19lJI8bOgVYA04WfIiFuHc",
-    scope: "profile https://www.googleapis.com/auth/userinfo.profile",
-    state: JSON.stringify({
-        destination: "http://localhost:3000/google_auth",
-    }),
-};
 
 describe("route /auth/google/callback", () => {
     beforeEach(reset_users_storage);
