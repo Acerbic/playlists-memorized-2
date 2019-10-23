@@ -415,6 +415,11 @@
     "@types/joi" "*"
     "@types/node-fetch" "*"
 
+"@types/hapi__joi@^16.0.2":
+  version "16.0.2"
+  resolved "https://registry.yarnpkg.com/@types/hapi__joi/-/hapi__joi-16.0.2.tgz#28dbc647c4fcf736403ad21c30668e3ecf4c19de"
+  integrity sha512-mBJ70SvfnlmeVNRiq34M0FwZ0xkFwwLN2eQkneT2DStDITKiWEV4ycE2Muq0PavBj+pc8wVtxpJwAR+YAMIplg==
+
 "@types/http-errors@^1.6.2":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@types/http-errors/-/http-errors-1.6.2.tgz#8d613d31be6871d093ef4640ae3272507156ba59"

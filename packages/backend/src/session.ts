@@ -1,8 +1,9 @@
 /**
- * Handles session-related activities
+ * Handles session-related activities - tokens exchanged with the frontend.
  */
 import jwt from "jsonwebtoken";
 import { Profile } from "passport-google-oauth20";
+import Joi from "@hapi/joi";
 
 import { UserRecordGoogle, UserRecord } from "./storage";
 
@@ -10,6 +11,10 @@ interface BaseSession {
     type: string;
     // In-app user id
     userId: string;
+    // issued at - added automatically by JWT to payload
+    iat?: number;
+    // expires at - added by JWT to payload
+    exp?: number;
 }
 
 export interface AuthorizedGoogleSession extends BaseSession {
@@ -23,10 +28,17 @@ export interface AnonymousSession extends BaseSession {
     type: "anonymous";
 }
 
-export type UserSession = AuthorizedGoogleSession | AnonymousSession;
+export interface LoginTokenSession extends BaseSession {
+    type: "login-token";
+}
+
+export type UserSession =
+    | AuthorizedGoogleSession
+    | AnonymousSession
+    | LoginTokenSession;
 
 /**
- * Check JWT token to be a valid operational session descriptor
+ * Get Session object from JWT token string, provides basic validation
  */
 export async function decode_session_token(
     token: string
@@ -43,11 +55,29 @@ export async function decode_session_token(
                 return;
             }
 
-            resolve(session as UserSession);
+            // checking basic compliance with BaseSession signature
+            const schema = Joi.object({
+                type: Joi.string()
+                    .required()
+                    .min(1),
+                userId: Joi.string()
+                    .required()
+                    .min(1),
+            });
+            const validation = schema.unknown(true).validate(session);
+            if (validation.error) {
+                reject(validation.error);
+            } else {
+                resolve(session as UserSession);
+            }
         });
     });
 }
 
+/**
+ * Turn user session object into JWT string
+ * @param session
+ */
 export async function sign_session(session: UserSession): Promise<string> {
     return new Promise((resolve, reject) => {
         jwt.sign(session, process.env.JWT_SECRET!, (err, encoded) => {
@@ -60,17 +90,32 @@ export async function sign_session(session: UserSession): Promise<string> {
     });
 }
 
-export async function create_temporary_auth_token({ userId }: UserRecord) {
-    return jwt.sign({ userId }, process.env.JWT_SECRET!, {
+/**
+ * Create a temporary token for transition during authorization.
+ * This token expires in 60 seconds.
+ */
+export async function create_temporary_auth_token({
+    userId,
+}: UserRecord): Promise<string> {
+    const session: LoginTokenSession = {
+        type: "login-token",
+        userId,
+    };
+    return jwt.sign(session, process.env.JWT_SECRET!, {
         expiresIn: 60,
     });
 }
 
+/**
+ * Creates a long-term authorized token for existing user
+ */
 export async function create_user_session_token({
     type,
     userId,
     profile,
 }: UserRecordGoogle): Promise<string> {
+    // FIXME: currently bound to Google session ? Rework for generalization
+    // might be needed
     const user_session: AuthorizedGoogleSession = {
         type,
         userId,

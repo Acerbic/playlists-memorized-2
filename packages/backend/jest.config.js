@@ -150,7 +150,7 @@ module.exports = {
     testPathIgnorePatterns: [
         "<rootDir>/dist/",
         "<rootDir>/node_modules/",
-        "<rootDir>/.*/__tests__/(.*/)*_.*\\.ts",
+        "<rootDir>/.*/__tests__(/.+)*/_.*\\.ts",
     ],
 
     // The regexp pattern or array of patterns that Jest uses to detect test files
