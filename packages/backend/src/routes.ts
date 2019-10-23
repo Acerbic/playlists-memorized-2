@@ -4,6 +4,7 @@ import auth_google from "./handlers/auth_google";
 import auth_google_cb from "./handlers/auth_google_callback";
 import start_session from "./handlers/start_session";
 import validate_session from "./handlers/validate_session";
+import close_session from "./handlers/close_session";
 
 export interface BaseAPIResponse {
     success: boolean;
@@ -21,6 +22,11 @@ export default function(app: Express, opts: AppOptions) {
     app.get("/auth/google", auth_google);
     // receive redirect from google oauth.
     app.get("/auth/google/callback", auth_google_cb);
-    app.post("/validate_session", validate_session);
+
+    // start session after google authorization
     app.get("/start_session", start_session);
+    // validate existing session
+    app.post("/validate_session", validate_session);
+    // TODO: close session
+    app.post("/close_session", close_session);
 }
