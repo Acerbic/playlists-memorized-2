@@ -5,6 +5,12 @@ import auth_google_cb from "./handlers/auth_google_callback";
 import start_session from "./handlers/start_session";
 import validate_session from "./handlers/validate_session";
 
+export interface BaseAPIResponse {
+    success: boolean;
+    errorCode?: string;
+    errorMsg?: string;
+}
+
 /**
  * Configures application routes
  * @param app

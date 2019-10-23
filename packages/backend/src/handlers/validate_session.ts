@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import { BaseAPIResponse } from "../typings/definitions";
+import { BaseAPIResponse } from "../routes";
 
 import { decode_session_token } from "../session";
 
