@@ -1,6 +1,9 @@
 import { Handler } from "express";
+import passport from "passport";
 
-// TODO: implement
-export default <Handler>((req, res, next) => {
-    throw "not implemented";
-});
+export default <Array<Handler>>[
+    passport.authenticate("jwt", { session: false }),
+    (req, res, next) => {
+        throw "not implemented";
+    },
+];

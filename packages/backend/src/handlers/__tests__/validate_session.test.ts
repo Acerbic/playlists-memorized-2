@@ -7,7 +7,6 @@ import {
     sign_session,
 } from "../../session";
 import {
-    ValidateSessionRequestBody,
     ValidateSessionResponseBody,
     MALFORMED_SESSION_TOKEN,
 } from "../validate_session";
@@ -28,22 +27,17 @@ describe("route /validate_session", () => {
     it("should contain proper token argument", () =>
         request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .expect(400));
-    it("should contain proper token argument 2", () =>
-        request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
-            .send({ token: false })
-            .expect(400));
+            .expect(401));
     it("should contain proper token argument 3", () =>
         request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .send({ token: "" })
-            .expect(400));
+            .set("Authorization", "Bearer ")
+            .expect(401));
     it("should contain proper token argument 4", () =>
         request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .send("some string value")
-            .expect(400));
+            .set("Authorization", "Bearer " + "some value")
+            .expect(401));
 
     it("should fail on unknown token", () => {
         const token: AnonymousSession = {
@@ -52,18 +46,10 @@ describe("route /validate_session", () => {
         };
 
         const encoded = jwt.sign(token, process.env.JWT_SECRET!);
-        const req: ValidateSessionRequestBody = { token: encoded };
         return request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .send(req)
-            .then(res => {
-                expect(res.ok).toBe(false);
-                expect(res.body as ValidateSessionResponseBody).toStrictEqual({
-                    success: false,
-                    errorCode: MALFORMED_SESSION_TOKEN,
-                    errorMsg: expect.anything(),
-                });
-            });
+            .set("Authorization", "Bearer " + encoded)
+            .then(res => expect(res.ok).toBe(false));
     });
 
     it("should confirm a valid token", async () => {
@@ -82,10 +68,9 @@ describe("route /validate_session", () => {
         };
 
         const encoded = await sign_session(token);
-        const req: ValidateSessionRequestBody = { token: encoded };
         return request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
-            .send(req)
+            .set("Authorization", "Bearer " + encoded)
             .then(res => {
                 expect(res.ok).toBe(true);
                 expect(res.body as ValidateSessionResponseBody).toStrictEqual({

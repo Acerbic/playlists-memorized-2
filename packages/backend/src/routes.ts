@@ -27,6 +27,6 @@ export default function(app: Express, opts: AppOptions) {
     app.get("/start_session", start_session);
     // validate existing session
     app.post("/validate_session", validate_session);
-    // close session
-    app.post("/close_session", close_session);
+    // close session - NOT POSSIBLE since sessions aren't stored on server side
+    // app.post("/close_session", close_session);
 }
