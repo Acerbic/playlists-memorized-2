@@ -40,6 +40,8 @@ export default function makeApp(options?: AppOptions) {
     const opts = Object.assign(
         {
             // Default options
+            host: "backend.localhost.com",
+            port: "8000",
         },
         options
     );
@@ -51,7 +53,7 @@ export default function makeApp(options?: AppOptions) {
     opts.logger && app.use(pinoHttp({ logger: opts.logger }));
     app.use(express.json());
 
-    passportConfigure("http://backend.localhost.com:8000/auth/google/callback");
+    passportConfigure(`http://${opts.host}:${opts.port}/auth/google/callback`);
     app.use(passport.initialize());
 
     // Register routes

@@ -122,5 +122,10 @@ export async function find_google_user(
  * Mostly for testing - purge all data and clear all users from storage
  */
 export async function reset_users_storage() {
+    // FIXME:
     storage.clear();
+}
+
+export async function update_user_record(user: UserRecord) {
+    // TODO:
 }

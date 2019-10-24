@@ -76,6 +76,6 @@ function main(options?: AppOptions, cb?: ReadyCallback) {
 }
 
 main({
-    host: "localhost",
+    host: "backend.localhost.com",
     port: "8000",
 });
