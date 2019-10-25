@@ -6,7 +6,7 @@ import { google } from "googleapis";
 
 import { BaseAPIResponse } from "../routes";
 import { UserRecord, update_user_record } from "../storage";
-import { TokenInfo, Credentials } from "google-auth-library";
+import { Credentials } from "google-auth-library";
 
 export const MALFORMED_SESSION_TOKEN = "MALFORMED_SESSION_TOKEN";
 export const EXPIRED_SESSION_TOKEN = "EXPIRED_SESSION_TOKEN";

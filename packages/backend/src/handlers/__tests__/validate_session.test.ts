@@ -6,7 +6,12 @@ import {
     AnonymousSession,
     sign_session,
 } from "../../session";
-import { add_new_user, get_user, UserRecordGoogle } from "../../storage";
+import {
+    add_new_user,
+    get_user,
+    reset_users_storage,
+    UserRecordGoogle,
+} from "../../storage";
 
 const real_googleapis = jest.requireActual("googleapis");
 type GAPI_OAuth2 = typeof real_googleapis.google.auth.OAuth2;
@@ -59,6 +64,7 @@ import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import makeApp from "../../app";
 import { ValidateSessionResponseBody } from "../validate_session";
+import { mock_user_profile } from "../../__tests__/_utils";
 
 describe("route /validate_session", () => {
     let app: Express;
@@ -75,6 +81,8 @@ describe("route /validate_session", () => {
         mockGapiOAuth2GetTokenInfo.mockClear();
         mockGapiOAuth2SetCredentials.mockClear();
         mockGapiOAuth2GetAccessToken.mockClear();
+
+        reset_users_storage();
     });
 
     it("should not respond to GET method", () =>
@@ -193,7 +201,6 @@ describe("route /validate_session", () => {
                 > = google.auth.OAuth2 as any;
                 expect(gapi_client_constructor).toBeCalledTimes(1);
                 expect(gapi_client_constructor).toReturn();
-                gapi_client_constructor.mock.instances;
 
                 const gapi_client_instance: jest.Mocked<OAuth2Client> =
                     gapi_client_constructor.mock.results[0].value;
@@ -216,7 +223,54 @@ describe("route /validate_session", () => {
                 });
             });
     });
-    it.todo(
-        "should return an error code if access token invalid and refresh failed"
-    );
+
+    it("should return an error code if access token invalid and refresh failed", async () => {
+        const userId = await add_new_user({
+            type: "google",
+            googleUserId: mock_user_profile.id,
+            profile: mock_user_profile,
+            accessToken: "outdated_invalid_token",
+            // "ya29.Il-pBzdEMsR9fP9aLPCvghEa-c9HrEAud1eaIKCxt7thVDBazH5-WyHR3Pa7NLXwvRkxMyVDVdF9BF6wOuaZvWEM_lOicgWeZlITpo1v2ErkmjdxRhZ6fAvFfBPYG-Fmag",
+            refreshToken: "bad_refresh_token",
+            // "1//0cfVYhE34u2F_CgYIARAAGAwSNwF-L9IriPaIdAiZxrcwrcDl6fXR82h0niDXyySCzDP766vepTAkPRmWF6PT7D00uZ8JTQJPcOs",
+        });
+        const token: AuthorizedGoogleSession = {
+            type: "google",
+            userId: userId,
+            userGoogleId: mock_user_profile.id,
+            profile: mock_user_profile,
+        };
+
+        const encoded = await sign_session(token);
+
+        // simulate failing token validation
+        mockGapiOAuth2GetTokenInfo.mockRejectedValueOnce(
+            new Error("invalid_token")
+        );
+        mockGapiOAuth2GetAccessToken.mockRejectedValueOnce(
+            new Error("invalid_token")
+        );
+
+        const res = await request(app)
+            .post(VALIDATE_SESSION_ENDPOINT)
+            .set("Authorization", "Bearer " + encoded);
+
+        const gapi_client_constructor: jest.MockedClass<
+            typeof OAuth2Client
+        > = google.auth.OAuth2 as any;
+        expect(gapi_client_constructor).toBeCalledTimes(1);
+        expect(gapi_client_constructor).toReturn();
+
+        const gapi_client_instance: jest.Mocked<OAuth2Client> =
+            gapi_client_constructor.mock.results[0].value;
+
+        expect(gapi_client_instance.getTokenInfo).toBeCalledTimes(1);
+        expect(gapi_client_instance.getAccessToken).toBeCalledTimes(1);
+
+        expect(res.status).toBe(400);
+        expect(res.body as ValidateSessionResponseBody).toHaveProperty(
+            "success"
+        );
+        expect((res.body as ValidateSessionResponseBody).success).toBe(false);
+    });
 });
