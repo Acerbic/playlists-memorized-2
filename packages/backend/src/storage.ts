@@ -128,4 +128,5 @@ export async function reset_users_storage() {
 
 export async function update_user_record(user: UserRecord) {
     // TODO:
+    storage.set(user.userId, user);
 }
