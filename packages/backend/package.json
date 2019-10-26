@@ -32,7 +32,8 @@
         "pino": "^5.13.2",
         "pino-http": "^4.3.0",
         "pino-pretty": "^3.2.1",
-        "uuid": "^3.3.3"
+        "uuid": "^3.3.3",
+        "typescript": "^3.6.2"
     },
     "devDependencies": {
         "@types/express": "^4.17.1",
@@ -44,6 +45,7 @@
         "@types/pino-http": "^4.3.0",
         "@types/supertest": "^2.0.8",
         "@types/uuid": "^3.4.5",
+        "graphql-cli": "^3.0.14",
         "concurrently": "^5.0.0",
         "frisby": "^2.1.2",
         "jest": "^24.9.0",
@@ -51,7 +53,6 @@
         "pino-colada": "^1.4.5",
         "superagent": "^5.1.0",
         "supertest": "^4.0.2",
-        "ts-jest": "^24.0.2",
-        "typescript": "^3.6.2"
+        "ts-jest": "^24.0.2"
     }
 }
