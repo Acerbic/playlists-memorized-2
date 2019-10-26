@@ -11,6 +11,7 @@
         "start": "node ./dist/server.js | pino-pretty",
         "dev:watch": "nodemon --inspect=51234 ./dist/server.js",
         "dev": "concurrently \"yarn tsc:watch\" \"yarn dev:watch | yarn pino-pretty\"",
+        "prisma:deploy": "cross-env PRISMA_ENDPOINT=http://localhost:4466 prisma deploy",
         "test": "jest"
     },
     "dependencies": {
@@ -20,6 +21,7 @@
         "@types/passport": "^1.0.1",
         "@types/passport-google-oauth20": "^2.0.3",
         "@types/passport-jwt": "^3.0.2",
+        "cross-env": "^6.0.3",
         "dotenv": "^8.1.0",
         "express": "^4.17.1",
         "express-async-handler": "^1.1.4",
@@ -32,8 +34,8 @@
         "pino": "^5.13.2",
         "pino-http": "^4.3.0",
         "pino-pretty": "^3.2.1",
-        "uuid": "^3.3.3",
-        "typescript": "^3.6.2"
+        "typescript": "^3.6.2",
+        "uuid": "^3.3.3"
     },
     "devDependencies": {
         "@types/express": "^4.17.1",
@@ -45,9 +47,9 @@
         "@types/pino-http": "^4.3.0",
         "@types/supertest": "^2.0.8",
         "@types/uuid": "^3.4.5",
-        "graphql-cli": "^3.0.14",
         "concurrently": "^5.0.0",
         "frisby": "^2.1.2",
+        "graphql-cli": "^3.0.14",
         "jest": "^24.9.0",
         "nodemon": "^1.19.2",
         "pino-colada": "^1.4.5",
