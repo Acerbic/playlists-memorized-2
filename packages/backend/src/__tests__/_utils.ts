@@ -112,13 +112,3 @@ export const mock_user_profile: Profile = {
     _raw: "",
     displayName: "Mock User",
 };
-
-// reusable query params as passed from Google to callback
-export const mock_callback_query = {
-    code:
-        "4/sAEZzb8MDIBoTTFTyZiRJaB5bBysCQC0zBdrAqwu-KtK3XtsalBUH_ZgWiTz4_tHb19lJI8bOgVYA04WfIiFuHc",
-    scope: "profile https://www.googleapis.com/auth/userinfo.profile",
-    state: JSON.stringify({
-        destination: "http://localhost:3000/google_auth",
-    }),
-};
