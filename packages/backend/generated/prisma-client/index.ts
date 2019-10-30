@@ -17,6 +17,7 @@ export type Maybe<T> = T | undefined | null;
 
 export interface Exists {
   user: (where?: UserWhereInput) => Promise<boolean>;
+  userAuth: (where?: UserAuthWhereInput) => Promise<boolean>;
 }
 
 export interface Node {}
@@ -57,6 +58,25 @@ export interface Prisma {
     first?: Int;
     last?: Int;
   }) => UserConnectionPromise;
+  userAuth: (where: UserAuthWhereUniqueInput) => UserAuthNullablePromise;
+  userAuths: (args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => FragmentableArray<UserAuth>;
+  userAuthsConnection: (args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => UserAuthConnectionPromise;
   node: (args: { id: ID_Output }) => Node;
 
   /**
@@ -68,10 +88,6 @@ export interface Prisma {
     data: UserUpdateInput;
     where: UserWhereUniqueInput;
   }) => UserPromise;
-  updateManyUsers: (args: {
-    data: UserUpdateManyMutationInput;
-    where?: UserWhereInput;
-  }) => BatchPayloadPromise;
   upsertUser: (args: {
     where: UserWhereUniqueInput;
     create: UserCreateInput;
@@ -79,6 +95,22 @@ export interface Prisma {
   }) => UserPromise;
   deleteUser: (where: UserWhereUniqueInput) => UserPromise;
   deleteManyUsers: (where?: UserWhereInput) => BatchPayloadPromise;
+  createUserAuth: (data: UserAuthCreateInput) => UserAuthPromise;
+  updateUserAuth: (args: {
+    data: UserAuthUpdateInput;
+    where: UserAuthWhereUniqueInput;
+  }) => UserAuthPromise;
+  updateManyUserAuths: (args: {
+    data: UserAuthUpdateManyMutationInput;
+    where?: UserAuthWhereInput;
+  }) => BatchPayloadPromise;
+  upsertUserAuth: (args: {
+    where: UserAuthWhereUniqueInput;
+    create: UserAuthCreateInput;
+    update: UserAuthUpdateInput;
+  }) => UserAuthPromise;
+  deleteUserAuth: (where: UserAuthWhereUniqueInput) => UserAuthPromise;
+  deleteManyUserAuths: (where?: UserAuthWhereInput) => BatchPayloadPromise;
 
   /**
    * Subscriptions
@@ -91,6 +123,9 @@ export interface Subscription {
   user: (
     where?: UserSubscriptionWhereInput
   ) => UserSubscriptionPayloadSubscription;
+  userAuth: (
+    where?: UserAuthSubscriptionWhereInput
+  ) => UserAuthSubscriptionPayloadSubscription;
 }
 
 export interface ClientConstructor<T> {
@@ -101,13 +136,62 @@ export interface ClientConstructor<T> {
  * Types
  */
 
-export type UserOrderByInput = "id_ASC" | "id_DESC" | "name_ASC" | "name_DESC";
+export type AuthType = "GOOGLE";
+
+export type UserAuthOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "type_ASC"
+  | "type_DESC"
+  | "authId_ASC"
+  | "authId_DESC"
+  | "extra_ASC"
+  | "extra_DESC";
+
+export type UserOrderByInput = "id_ASC" | "id_DESC";
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
 export type UserWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
 }>;
+
+export interface UserAuthWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  type?: Maybe<AuthType>;
+  type_not?: Maybe<AuthType>;
+  type_in?: Maybe<AuthType[] | AuthType>;
+  type_not_in?: Maybe<AuthType[] | AuthType>;
+  user?: Maybe<UserWhereInput>;
+  authId?: Maybe<String>;
+  authId_not?: Maybe<String>;
+  authId_in?: Maybe<String[] | String>;
+  authId_not_in?: Maybe<String[] | String>;
+  authId_lt?: Maybe<String>;
+  authId_lte?: Maybe<String>;
+  authId_gt?: Maybe<String>;
+  authId_gte?: Maybe<String>;
+  authId_contains?: Maybe<String>;
+  authId_not_contains?: Maybe<String>;
+  authId_starts_with?: Maybe<String>;
+  authId_not_starts_with?: Maybe<String>;
+  authId_ends_with?: Maybe<String>;
+  authId_not_ends_with?: Maybe<String>;
+  AND?: Maybe<UserAuthWhereInput[] | UserAuthWhereInput>;
+}
 
 export interface UserWhereInput {
   id?: Maybe<ID_Input>;
@@ -124,34 +208,159 @@ export interface UserWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
-  name?: Maybe<String>;
-  name_not?: Maybe<String>;
-  name_in?: Maybe<String[] | String>;
-  name_not_in?: Maybe<String[] | String>;
-  name_lt?: Maybe<String>;
-  name_lte?: Maybe<String>;
-  name_gt?: Maybe<String>;
-  name_gte?: Maybe<String>;
-  name_contains?: Maybe<String>;
-  name_not_contains?: Maybe<String>;
-  name_starts_with?: Maybe<String>;
-  name_not_starts_with?: Maybe<String>;
-  name_ends_with?: Maybe<String>;
-  name_not_ends_with?: Maybe<String>;
+  auths_some?: Maybe<UserAuthWhereInput>;
   AND?: Maybe<UserWhereInput[] | UserWhereInput>;
 }
 
+export type UserAuthWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
 export interface UserCreateInput {
   id?: Maybe<ID_Input>;
-  name: String;
+  auths?: Maybe<UserAuthCreateManyWithoutUserInput>;
+}
+
+export interface UserAuthCreateManyWithoutUserInput {
+  create?: Maybe<
+    UserAuthCreateWithoutUserInput[] | UserAuthCreateWithoutUserInput
+  >;
+  connect?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+}
+
+export interface UserAuthCreateWithoutUserInput {
+  id?: Maybe<ID_Input>;
+  type: AuthType;
+  authId: String;
+  extra?: Maybe<Json>;
 }
 
 export interface UserUpdateInput {
-  name?: Maybe<String>;
+  auths?: Maybe<UserAuthUpdateManyWithoutUserInput>;
 }
 
-export interface UserUpdateManyMutationInput {
-  name?: Maybe<String>;
+export interface UserAuthUpdateManyWithoutUserInput {
+  create?: Maybe<
+    UserAuthCreateWithoutUserInput[] | UserAuthCreateWithoutUserInput
+  >;
+  delete?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+  connect?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+  set?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+  disconnect?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+  update?: Maybe<
+    | UserAuthUpdateWithWhereUniqueWithoutUserInput[]
+    | UserAuthUpdateWithWhereUniqueWithoutUserInput
+  >;
+  upsert?: Maybe<
+    | UserAuthUpsertWithWhereUniqueWithoutUserInput[]
+    | UserAuthUpsertWithWhereUniqueWithoutUserInput
+  >;
+  deleteMany?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
+  updateMany?: Maybe<
+    | UserAuthUpdateManyWithWhereNestedInput[]
+    | UserAuthUpdateManyWithWhereNestedInput
+  >;
+}
+
+export interface UserAuthUpdateWithWhereUniqueWithoutUserInput {
+  where: UserAuthWhereUniqueInput;
+  data: UserAuthUpdateWithoutUserDataInput;
+}
+
+export interface UserAuthUpdateWithoutUserDataInput {
+  type?: Maybe<AuthType>;
+  authId?: Maybe<String>;
+  extra?: Maybe<Json>;
+}
+
+export interface UserAuthUpsertWithWhereUniqueWithoutUserInput {
+  where: UserAuthWhereUniqueInput;
+  update: UserAuthUpdateWithoutUserDataInput;
+  create: UserAuthCreateWithoutUserInput;
+}
+
+export interface UserAuthScalarWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  type?: Maybe<AuthType>;
+  type_not?: Maybe<AuthType>;
+  type_in?: Maybe<AuthType[] | AuthType>;
+  type_not_in?: Maybe<AuthType[] | AuthType>;
+  authId?: Maybe<String>;
+  authId_not?: Maybe<String>;
+  authId_in?: Maybe<String[] | String>;
+  authId_not_in?: Maybe<String[] | String>;
+  authId_lt?: Maybe<String>;
+  authId_lte?: Maybe<String>;
+  authId_gt?: Maybe<String>;
+  authId_gte?: Maybe<String>;
+  authId_contains?: Maybe<String>;
+  authId_not_contains?: Maybe<String>;
+  authId_starts_with?: Maybe<String>;
+  authId_not_starts_with?: Maybe<String>;
+  authId_ends_with?: Maybe<String>;
+  authId_not_ends_with?: Maybe<String>;
+  AND?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
+  OR?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
+  NOT?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
+}
+
+export interface UserAuthUpdateManyWithWhereNestedInput {
+  where: UserAuthScalarWhereInput;
+  data: UserAuthUpdateManyDataInput;
+}
+
+export interface UserAuthUpdateManyDataInput {
+  type?: Maybe<AuthType>;
+  authId?: Maybe<String>;
+  extra?: Maybe<Json>;
+}
+
+export interface UserAuthCreateInput {
+  id?: Maybe<ID_Input>;
+  type: AuthType;
+  user: UserCreateOneWithoutAuthsInput;
+  authId: String;
+  extra?: Maybe<Json>;
+}
+
+export interface UserCreateOneWithoutAuthsInput {
+  create?: Maybe<UserCreateWithoutAuthsInput>;
+  connect?: Maybe<UserWhereUniqueInput>;
+}
+
+export interface UserCreateWithoutAuthsInput {
+  id?: Maybe<ID_Input>;
+}
+
+export interface UserAuthUpdateInput {
+  type?: Maybe<AuthType>;
+  user?: Maybe<UserUpdateOneRequiredWithoutAuthsInput>;
+  authId?: Maybe<String>;
+  extra?: Maybe<Json>;
+}
+
+export interface UserUpdateOneRequiredWithoutAuthsInput {
+  create?: Maybe<UserCreateWithoutAuthsInput>;
+  connect?: Maybe<UserWhereUniqueInput>;
+}
+
+export interface UserAuthUpdateManyMutationInput {
+  type?: Maybe<AuthType>;
+  authId?: Maybe<String>;
+  extra?: Maybe<Json>;
 }
 
 export interface UserSubscriptionWhereInput {
@@ -163,32 +372,101 @@ export interface UserSubscriptionWhereInput {
   AND?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
 }
 
+export interface UserAuthSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<UserAuthWhereInput>;
+  AND?: Maybe<
+    UserAuthSubscriptionWhereInput[] | UserAuthSubscriptionWhereInput
+  >;
+}
+
 export interface NodeNode {
   id: ID_Output;
 }
 
 export interface User {
   id: ID_Output;
-  name: String;
 }
 
 export interface UserPromise extends Promise<User>, Fragmentable {
   id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
+  auths: <T = FragmentableArray<UserAuth>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
 }
 
 export interface UserSubscription
   extends Promise<AsyncIterator<User>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
+  auths: <T = Promise<AsyncIterator<UserAuthSubscription>>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
 }
 
 export interface UserNullablePromise
   extends Promise<User | null>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
+  auths: <T = FragmentableArray<UserAuth>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface UserAuth {
+  id: ID_Output;
+  type: AuthType;
+  authId: String;
+  extra?: Json;
+}
+
+export interface UserAuthPromise extends Promise<UserAuth>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  type: () => Promise<AuthType>;
+  user: <T = UserPromise>() => T;
+  authId: () => Promise<String>;
+  extra: () => Promise<Json>;
+}
+
+export interface UserAuthSubscription
+  extends Promise<AsyncIterator<UserAuth>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  type: () => Promise<AsyncIterator<AuthType>>;
+  user: <T = UserSubscription>() => T;
+  authId: () => Promise<AsyncIterator<String>>;
+  extra: () => Promise<AsyncIterator<Json>>;
+}
+
+export interface UserAuthNullablePromise
+  extends Promise<UserAuth | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  type: () => Promise<AuthType>;
+  user: <T = UserPromise>() => T;
+  authId: () => Promise<String>;
+  extra: () => Promise<Json>;
 }
 
 export interface UserConnection {
@@ -268,6 +546,62 @@ export interface AggregateUserSubscription
   count: () => Promise<AsyncIterator<Int>>;
 }
 
+export interface UserAuthConnection {
+  pageInfo: PageInfo;
+  edges: UserAuthEdge[];
+}
+
+export interface UserAuthConnectionPromise
+  extends Promise<UserAuthConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<UserAuthEdge>>() => T;
+  aggregate: <T = AggregateUserAuthPromise>() => T;
+}
+
+export interface UserAuthConnectionSubscription
+  extends Promise<AsyncIterator<UserAuthConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<UserAuthEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateUserAuthSubscription>() => T;
+}
+
+export interface UserAuthEdge {
+  node: UserAuth;
+  cursor: String;
+}
+
+export interface UserAuthEdgePromise
+  extends Promise<UserAuthEdge>,
+    Fragmentable {
+  node: <T = UserAuthPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface UserAuthEdgeSubscription
+  extends Promise<AsyncIterator<UserAuthEdge>>,
+    Fragmentable {
+  node: <T = UserAuthSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateUserAuth {
+  count: Int;
+}
+
+export interface AggregateUserAuthPromise
+  extends Promise<AggregateUserAuth>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateUserAuthSubscription
+  extends Promise<AsyncIterator<AggregateUserAuth>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
 export interface BatchPayload {
   count: Long;
 }
@@ -311,21 +645,68 @@ export interface UserSubscriptionPayloadSubscription
 
 export interface UserPreviousValues {
   id: ID_Output;
-  name: String;
 }
 
 export interface UserPreviousValuesPromise
   extends Promise<UserPreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
 }
 
 export interface UserPreviousValuesSubscription
   extends Promise<AsyncIterator<UserPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
+}
+
+export interface UserAuthSubscriptionPayload {
+  mutation: MutationType;
+  node: UserAuth;
+  updatedFields: String[];
+  previousValues: UserAuthPreviousValues;
+}
+
+export interface UserAuthSubscriptionPayloadPromise
+  extends Promise<UserAuthSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = UserAuthPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = UserAuthPreviousValuesPromise>() => T;
+}
+
+export interface UserAuthSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<UserAuthSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = UserAuthSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = UserAuthPreviousValuesSubscription>() => T;
+}
+
+export interface UserAuthPreviousValues {
+  id: ID_Output;
+  type: AuthType;
+  authId: String;
+  extra?: Json;
+}
+
+export interface UserAuthPreviousValuesPromise
+  extends Promise<UserAuthPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  type: () => Promise<AuthType>;
+  authId: () => Promise<String>;
+  extra: () => Promise<Json>;
+}
+
+export interface UserAuthPreviousValuesSubscription
+  extends Promise<AsyncIterator<UserAuthPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  type: () => Promise<AsyncIterator<AuthType>>;
+  authId: () => Promise<AsyncIterator<String>>;
+  extra: () => Promise<AsyncIterator<Json>>;
 }
 
 /*
@@ -344,6 +725,8 @@ The `Int` scalar type represents non-fractional signed whole numeric values. Int
 */
 export type Int = number;
 
+export type Json = any;
+
 /*
 The `Boolean` scalar type represents `true` or `false`.
 */
@@ -357,7 +740,15 @@ export type Long = string;
 
 export const models: Model[] = [
   {
+    name: "AuthType",
+    embedded: false
+  },
+  {
     name: "User",
+    embedded: false
+  },
+  {
+    name: "UserAuth",
     embedded: false
   }
 ];

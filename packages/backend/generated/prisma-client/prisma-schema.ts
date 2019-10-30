@@ -6,19 +6,34 @@ export const typeDefs = /* GraphQL */ `type AggregateUser {
   count: Int!
 }
 
+type AggregateUserAuth {
+  count: Int!
+}
+
+enum AuthType {
+  GOOGLE
+}
+
 type BatchPayload {
   count: Long!
 }
+
+scalar Json
 
 scalar Long
 
 type Mutation {
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   deleteUser(where: UserWhereUniqueInput!): User
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  createUserAuth(data: UserAuthCreateInput!): UserAuth!
+  updateUserAuth(data: UserAuthUpdateInput!, where: UserAuthWhereUniqueInput!): UserAuth
+  updateManyUserAuths(data: UserAuthUpdateManyMutationInput!, where: UserAuthWhereInput): BatchPayload!
+  upsertUserAuth(where: UserAuthWhereUniqueInput!, create: UserAuthCreateInput!, update: UserAuthUpdateInput!): UserAuth!
+  deleteUserAuth(where: UserAuthWhereUniqueInput!): UserAuth
+  deleteManyUserAuths(where: UserAuthWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -42,16 +57,225 @@ type Query {
   user(where: UserWhereUniqueInput!): User
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  userAuth(where: UserAuthWhereUniqueInput!): UserAuth
+  userAuths(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserAuth]!
+  userAuthsConnection(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserAuthConnection!
   node(id: ID!): Node
 }
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  userAuth(where: UserAuthSubscriptionWhereInput): UserAuthSubscriptionPayload
 }
 
 type User {
   id: ID!
-  name: String!
+  auths(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserAuth!]
+}
+
+type UserAuth {
+  id: ID!
+  type: AuthType!
+  user: User!
+  authId: String!
+  extra: Json
+}
+
+type UserAuthConnection {
+  pageInfo: PageInfo!
+  edges: [UserAuthEdge]!
+  aggregate: AggregateUserAuth!
+}
+
+input UserAuthCreateInput {
+  id: ID
+  type: AuthType!
+  user: UserCreateOneWithoutAuthsInput!
+  authId: String!
+  extra: Json
+}
+
+input UserAuthCreateManyWithoutUserInput {
+  create: [UserAuthCreateWithoutUserInput!]
+  connect: [UserAuthWhereUniqueInput!]
+}
+
+input UserAuthCreateWithoutUserInput {
+  id: ID
+  type: AuthType!
+  authId: String!
+  extra: Json
+}
+
+type UserAuthEdge {
+  node: UserAuth!
+  cursor: String!
+}
+
+enum UserAuthOrderByInput {
+  id_ASC
+  id_DESC
+  type_ASC
+  type_DESC
+  authId_ASC
+  authId_DESC
+  extra_ASC
+  extra_DESC
+}
+
+type UserAuthPreviousValues {
+  id: ID!
+  type: AuthType!
+  authId: String!
+  extra: Json
+}
+
+input UserAuthScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  type: AuthType
+  type_not: AuthType
+  type_in: [AuthType!]
+  type_not_in: [AuthType!]
+  authId: String
+  authId_not: String
+  authId_in: [String!]
+  authId_not_in: [String!]
+  authId_lt: String
+  authId_lte: String
+  authId_gt: String
+  authId_gte: String
+  authId_contains: String
+  authId_not_contains: String
+  authId_starts_with: String
+  authId_not_starts_with: String
+  authId_ends_with: String
+  authId_not_ends_with: String
+  AND: [UserAuthScalarWhereInput!]
+  OR: [UserAuthScalarWhereInput!]
+  NOT: [UserAuthScalarWhereInput!]
+}
+
+type UserAuthSubscriptionPayload {
+  mutation: MutationType!
+  node: UserAuth
+  updatedFields: [String!]
+  previousValues: UserAuthPreviousValues
+}
+
+input UserAuthSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserAuthWhereInput
+  AND: [UserAuthSubscriptionWhereInput!]
+}
+
+input UserAuthUpdateInput {
+  type: AuthType
+  user: UserUpdateOneRequiredWithoutAuthsInput
+  authId: String
+  extra: Json
+}
+
+input UserAuthUpdateManyDataInput {
+  type: AuthType
+  authId: String
+  extra: Json
+}
+
+input UserAuthUpdateManyMutationInput {
+  type: AuthType
+  authId: String
+  extra: Json
+}
+
+input UserAuthUpdateManyWithoutUserInput {
+  create: [UserAuthCreateWithoutUserInput!]
+  delete: [UserAuthWhereUniqueInput!]
+  connect: [UserAuthWhereUniqueInput!]
+  set: [UserAuthWhereUniqueInput!]
+  disconnect: [UserAuthWhereUniqueInput!]
+  update: [UserAuthUpdateWithWhereUniqueWithoutUserInput!]
+  upsert: [UserAuthUpsertWithWhereUniqueWithoutUserInput!]
+  deleteMany: [UserAuthScalarWhereInput!]
+  updateMany: [UserAuthUpdateManyWithWhereNestedInput!]
+}
+
+input UserAuthUpdateManyWithWhereNestedInput {
+  where: UserAuthScalarWhereInput!
+  data: UserAuthUpdateManyDataInput!
+}
+
+input UserAuthUpdateWithoutUserDataInput {
+  type: AuthType
+  authId: String
+  extra: Json
+}
+
+input UserAuthUpdateWithWhereUniqueWithoutUserInput {
+  where: UserAuthWhereUniqueInput!
+  data: UserAuthUpdateWithoutUserDataInput!
+}
+
+input UserAuthUpsertWithWhereUniqueWithoutUserInput {
+  where: UserAuthWhereUniqueInput!
+  update: UserAuthUpdateWithoutUserDataInput!
+  create: UserAuthCreateWithoutUserInput!
+}
+
+input UserAuthWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  type: AuthType
+  type_not: AuthType
+  type_in: [AuthType!]
+  type_not_in: [AuthType!]
+  user: UserWhereInput
+  authId: String
+  authId_not: String
+  authId_in: [String!]
+  authId_not_in: [String!]
+  authId_lt: String
+  authId_lte: String
+  authId_gt: String
+  authId_gte: String
+  authId_contains: String
+  authId_not_contains: String
+  authId_starts_with: String
+  authId_not_starts_with: String
+  authId_ends_with: String
+  authId_not_ends_with: String
+  AND: [UserAuthWhereInput!]
+}
+
+input UserAuthWhereUniqueInput {
+  id: ID
 }
 
 type UserConnection {
@@ -62,7 +286,16 @@ type UserConnection {
 
 input UserCreateInput {
   id: ID
-  name: String!
+  auths: UserAuthCreateManyWithoutUserInput
+}
+
+input UserCreateOneWithoutAuthsInput {
+  create: UserCreateWithoutAuthsInput
+  connect: UserWhereUniqueInput
+}
+
+input UserCreateWithoutAuthsInput {
+  id: ID
 }
 
 type UserEdge {
@@ -73,13 +306,10 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
-  name_ASC
-  name_DESC
 }
 
 type UserPreviousValues {
   id: ID!
-  name: String!
 }
 
 type UserSubscriptionPayload {
@@ -99,11 +329,12 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
-  name: String
+  auths: UserAuthUpdateManyWithoutUserInput
 }
 
-input UserUpdateManyMutationInput {
-  name: String
+input UserUpdateOneRequiredWithoutAuthsInput {
+  create: UserCreateWithoutAuthsInput
+  connect: UserWhereUniqueInput
 }
 
 input UserWhereInput {
@@ -121,20 +352,7 @@ input UserWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  name: String
-  name_not: String
-  name_in: [String!]
-  name_not_in: [String!]
-  name_lt: String
-  name_lte: String
-  name_gt: String
-  name_gte: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
+  auths_some: UserAuthWhereInput
   AND: [UserWhereInput!]
 }
 

@@ -1,4 +1,18 @@
+enum AuthType {
+  GOOGLE
+}
+
+# Basic user of the system
 type User {
   id: ID! @id
-  name: String!
+  auths: [UserAuth!]! @relation(link: INLINE)
+}
+
+# Authentications of the user (via Google, Facebook, etc.)
+type UserAuth {
+  id: ID! @id
+  type: AuthType!
+  user: User!
+  authId: String! # id in the target authentication system
+  extra: Json # service-spefic data (google profile, access_token, etc)
 }
