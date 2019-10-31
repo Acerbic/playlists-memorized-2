@@ -113,7 +113,9 @@ export async function add_new_user(
         .createUser({
             auths: { create: authentications },
         })
-        .then(user => user.id);
+        .then(user => {
+            return user.id;
+        });
 }
 
 export async function find_or_create_google_user(
