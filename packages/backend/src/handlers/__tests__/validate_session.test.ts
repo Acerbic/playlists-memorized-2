@@ -9,10 +9,13 @@ import {
     AnonymousSession,
     sign_session,
 } from "../../session";
-import { add_new_user, reset_users_storage } from "../../storage";
 
 import { ValidateSessionResponseBody } from "../validate_session";
-import { mock_user_profile } from "../../__tests__/_utils";
+import {
+    mock_user_profile,
+    MockSingleUserStorage,
+    MockStorage,
+} from "../../__tests__/_utils";
 
 describe("route /validate_session", () => {
     let app: Express;
@@ -25,7 +28,8 @@ describe("route /validate_session", () => {
     });
 
     beforeEach(() => {
-        return reset_users_storage();
+        // return reset_users_storage();
+        app.set("storage", new MockStorage());
     });
 
     it("should not respond to GET method", () =>
@@ -63,28 +67,16 @@ describe("route /validate_session", () => {
     });
 
     it("should confirm a valid token", async () => {
-        let pe = process.env.PRISMA_ENDPOINT;
-        const userId = await add_new_user({
-            auth: {
-                GOOGLE: {
-                    type: "GOOGLE",
-                    authId: mock_user_profile.id,
-                    extra: {
-                        accessToken: "mock_access_token",
-                        refreshToken: "mock_refresh_token",
-                        profile: mock_user_profile,
-                    },
-                },
-            },
-        });
+        const storage = new MockSingleUserStorage();
+        app.set("storage", storage);
         const token: AuthorizedGoogleSession = {
             type: "google",
-            userId: userId,
-            userGoogleId: "1234567",
-            profile: { id: "1234567" } as any,
+            userId: storage.single_user_id,
+            userGoogleId: mock_user_profile.id,
+            profile: mock_user_profile,
         };
-
         const encoded = await sign_session(token);
+
         return request(app)
             .post(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer " + encoded)
@@ -93,6 +85,9 @@ describe("route /validate_session", () => {
                 expect(res.body as ValidateSessionResponseBody).toStrictEqual({
                     success: true,
                 });
+                expect(storage.get_user).toBeCalledTimes(1);
             });
     });
+
+    it.todo("should fail valid token for missing user");
 });

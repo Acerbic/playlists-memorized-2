@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { Profile } from "passport-google-oauth20";
 import Joi from "@hapi/joi";
 
-import { UserGoogleAuth, UserRecord } from "./storage";
+import { UserRecord } from "./storage";
 
 interface BaseSession {
     type: string;
@@ -117,8 +117,8 @@ export async function create_user_session_token(
     const user_session: AuthorizedGoogleSession = {
         type: "google",
         userId: user.id!,
-        profile: user.auth.GOOGLE!.extra.profile,
-        userGoogleId: user.auth.GOOGLE!.authId,
+        profile: user.authentications.GOOGLE!.extra.profile,
+        userGoogleId: user.authentications.GOOGLE!.authId,
     };
     return sign_session(user_session);
 }

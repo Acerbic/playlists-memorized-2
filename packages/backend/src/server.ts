@@ -2,7 +2,7 @@ import { Server } from "http";
 import { AddressInfo } from "net";
 import { Express } from "express";
 import pino from "pino";
-
+import { StoragePrisma } from "./storage-prisma";
 import makeApp, { AppOptions } from "./app";
 
 type ReadyCallback = (err?: any, app?: Express, server?: Server) => void;
@@ -12,6 +12,8 @@ function main(options?: AppOptions, cb?: ReadyCallback) {
     const opts = Object.assign(
         {
             // Default options
+            port: "8000",
+            host: "backend.localhost.com",
         },
         options
     );
@@ -78,4 +80,5 @@ function main(options?: AppOptions, cb?: ReadyCallback) {
 main({
     host: "backend.localhost.com",
     port: "8000",
+    storage: new StoragePrisma(),
 });

@@ -28,11 +28,14 @@ import passportConfigure from "./passport";
 
 import routes from "./routes";
 import passport from "passport";
+import { Storage } from "./storage";
+import { StoragePrisma } from "./storage-prisma";
 
 export interface AppOptions {
-    host: string;
-    port: string;
+    host?: string;
+    port?: string;
     logger?: Logger;
+    storage?: Storage;
 }
 
 export default function makeApp(options?: AppOptions) {
@@ -42,12 +45,14 @@ export default function makeApp(options?: AppOptions) {
             // Default options
             host: "backend.localhost.com",
             port: "8000",
+            storage: new StoragePrisma(),
         },
         options
     );
 
     // Create the express app
     const app = express();
+    app.set("storage", opts.storage);
 
     // Common middleware
     opts.logger && app.use(pinoHttp({ logger: opts.logger }));

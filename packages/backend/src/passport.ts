@@ -6,10 +6,15 @@ import passport from "passport";
 import {
     Strategy as GoogleStrategy,
     Profile,
-    VerifyCallback,
+    VerifyCallback as VerifyCB_GoogleOAuth20,
 } from "passport-google-oauth20";
-import { find_or_create_google_user, get_user } from "./storage";
-import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
+import { Request } from "express";
+import { find_or_create_google_user, Storage } from "./storage";
+import {
+    Strategy as JWTStrategy,
+    ExtractJwt,
+    VerifiedCallback as VerifyCB_JWT,
+} from "passport-jwt";
 
 // User verification function
 // from "profile" and with accessToken for extra data fetching,
@@ -17,15 +22,21 @@ import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 // successful authentication (of fail authentication)
 // In the following  middleware, see req.user field
 export function verify(
+    req: Request,
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    cb: VerifyCallback
+    done: VerifyCB_GoogleOAuth20
 ): void {
     // fetch user entity
-    find_or_create_google_user(accessToken, refreshToken, profile)
-        .then(userRecord => cb(undefined, userRecord))
-        .catch(error => cb(error, false));
+    const storage: Storage = req.app.get("storage");
+    if (!storage) {
+        done(new Error("Express app must have a storage initiated"), false);
+    } else {
+        find_or_create_google_user(storage, accessToken, refreshToken, profile)
+            .then(userRecord => done(undefined, userRecord))
+            .catch(error => done(error, false));
+    }
 }
 
 /**
@@ -40,6 +51,7 @@ export function configure(callbackURL: string) {
                 clientID: process.env.GOOGLE_CLIENT_ID!,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
                 callbackURL,
+                passReqToCallback: true,
             },
             verify
         )
@@ -49,11 +61,21 @@ export function configure(callbackURL: string) {
             {
                 secretOrKey: process.env.JWT_SECRET!,
                 jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+                passReqToCallback: true,
             },
-            (payload: any, done) => {
-                get_user(payload.userId)
-                    .then(user => done(null, user))
-                    .catch(err => done(err, false));
+            (req: Request, payload: any, done: VerifyCB_JWT) => {
+                const storage: Storage = req.app.get("storage");
+                if (!storage) {
+                    done(
+                        new Error("Express app must have a storage initiated"),
+                        false
+                    );
+                } else {
+                    storage
+                        .get_user(payload.userId)
+                        .then(user => done(null, user))
+                        .catch(err => done(err, false));
+                }
             }
         )
     );

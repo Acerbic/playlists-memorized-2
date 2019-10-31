@@ -5,22 +5,23 @@ import dotenv from "dotenv";
 dotenv.config({
     path: ".env.test",
 });
+import { prisma } from "../../generated/prisma-client";
 import { mock_user_profile } from "./_utils";
-import {
-    UserRecord,
-    UserGoogleAuth,
-    add_new_user,
-    get_user,
-    get_user_by_auth,
-    reset_users_storage,
-} from "../storage";
+import { UserGoogleAuth } from "../storage";
+import { StoragePrisma } from "../storage-prisma";
 
-describe("storage with Prisma", () => {
+describe("storage with Prisma #unit", () => {
     beforeAll(() => {});
 
-    beforeEach(reset_users_storage);
+    beforeEach(async () => {
+        return prisma
+            .deleteManyUserAuths()
+            .then(() => prisma.deleteManyUsers());
+    });
+
     it("should store a new user", async () => {
-        const userGoogleAuth: UserGoogleAuth = {
+        const storage = new StoragePrisma();
+        const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
             authId: mock_user_profile.id,
             extra: {
@@ -30,18 +31,15 @@ describe("storage with Prisma", () => {
             },
         };
 
-        let user: UserRecord = {
-            auth: {
-                GOOGLE: userGoogleAuth,
-            },
-        };
+        const user_id = await storage.add_new_user({}, [userGoogleAuth]);
 
-        const user_id = await add_new_user(user);
         expect(user_id).toBeTruthy();
         expect(user_id.length).toBeGreaterThanOrEqual(1);
     });
+
     it("should be able to fetch user by id", async () => {
-        const userGoogleAuth: UserGoogleAuth = {
+        const storage = new StoragePrisma();
+        const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
             authId: mock_user_profile.id,
             extra: {
@@ -50,28 +48,21 @@ describe("storage with Prisma", () => {
                 profile: mock_user_profile,
             },
         };
+        const user_id = await storage.add_new_user({}, [userGoogleAuth]);
 
-        let user: UserRecord = {
-            auth: {
-                GOOGLE: userGoogleAuth,
-            },
-        };
+        const retrieved_user = await storage.get_user(user_id);
 
-        const user_id = await add_new_user(user);
-        expect(user_id).toBeTruthy();
-        expect(user_id.length).toBeGreaterThanOrEqual(1);
-
-        const retrieved_user = await get_user(user_id);
         expect(retrieved_user).not.toBeUndefined();
         expect(retrieved_user!.id).toEqual(user_id);
-        expect(retrieved_user!.auth).toHaveProperty("GOOGLE");
-        expect(retrieved_user!.auth.GOOGLE!.authId).toEqual(
+        expect(retrieved_user!.authentications).toHaveProperty("GOOGLE");
+        expect(retrieved_user!.authentications.GOOGLE!.authId).toEqual(
             mock_user_profile.id
         );
     });
 
     it("should be able to find user by Auth Id", async () => {
-        const userGoogleAuth: UserGoogleAuth = {
+        const storage = new StoragePrisma();
+        const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
             authId: mock_user_profile.id,
             extra: {
@@ -80,19 +71,9 @@ describe("storage with Prisma", () => {
                 profile: mock_user_profile,
             },
         };
+        const user_id = await storage.add_new_user({}, [userGoogleAuth]);
 
-        let user: UserRecord = {
-            auth: {
-                GOOGLE: userGoogleAuth,
-            },
-        };
-
-        const user_id = await add_new_user(user);
-
-        expect(user_id).toBeTruthy();
-        expect(user_id.length).toBeGreaterThanOrEqual(1);
-
-        const retrieved_user = await get_user_by_auth(
+        const retrieved_user = await storage.find_user_by_auth(
             "GOOGLE",
             mock_user_profile.id
         );

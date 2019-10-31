@@ -2,24 +2,16 @@
  * All the stuff to do with long-term persistence (db connection, etc)
  */
 
-import {
-    prisma,
-    User,
-    UserAuth,
-    AuthType,
-    Maybe,
-    UserAuthCreateInput,
-} from "../generated/prisma-client";
-import uuid from "uuid/v4";
+import { User, UserAuth, AuthType, Maybe } from "../generated/prisma-client";
 import { Profile } from "passport-google-oauth20";
 
-export const AllAuthTypes: Array<AuthType> = ["GOOGLE"];
+// error type to reject with when user is not found in storage
+export class UserNotFoundError extends Error {}
 
-export type OptionalId<T extends { id: any }> = Omit<T, "id"> & {
-    id?: Maybe<T["id"]>;
-};
+// all possible authentication types, as array
+export const AllAuthTypes: readonly AuthType[] = Object.freeze(["GOOGLE"]);
 
-export interface UserGoogleAuth extends OptionalId<UserAuth> {
+export interface UserGoogleAuth extends UserAuth {
     type: "GOOGLE";
     extra: {
         accessToken: string;
@@ -31,107 +23,56 @@ export interface UserGoogleAuth extends OptionalId<UserAuth> {
 // all allowed auth types, unlike UserAuth which is a general case
 export type UserAuthType = UserGoogleAuth; // | UserFacebookAuth | ....
 
-export interface UserRecord extends OptionalId<User> {
-    auth: {
+export interface UserRecord extends User {
+    authentications: {
         [authName in AuthType]?: UserAuthType;
     };
 }
 
-/**
- * Find an existing user by id
- * @param userId
- */
-export async function get_user(
-    userId: string
-): Promise<UserRecord | undefined> {
-    const fragment = `
-        fragment UserWithAuths on User {
-            id
-            auths {
-                id
-                type
-                authId
-                extra
-            }
-        }
-    `;
+export interface Storage {
+    /**
+     * Find an existing user by id
+     * If user with this id is not found, rejects with UserNotFoundError
+     * @param userId - id of user in storage
+     */
+    get_user: (userId: string) => Promise<UserRecord>;
 
-    return prisma
-        .users({ where: { id: userId } })
-        .$fragment<UserFragment>(fragment)
-        .then(userFragmentToUserRecord);
-}
+    /**
+     * If user with this id is not found, rejects with UserNotFoundError
+     */
+    find_user_by_auth: (type: AuthType, authId: string) => Promise<UserRecord>;
 
-export async function get_user_by_auth(
-    type: AuthType,
-    authId: string
-): Promise<UserRecord | undefined> {
-    if (!AllAuthTypes.includes(type)) {
-        throw "Unknown authorization type";
-    }
+    /**
+     * Creates a new user in app storage based on authentication data.
+     * @returns id of created user
+     */
+    add_new_user: (
+        userData: Omit<User, "id">,
+        authentications: Omit<UserAuthType, "id">[]
+    ) => Promise<string>;
 
-    const fragment = `
-        fragment UserFromAuth on UserAuth {
-            id
-            user {
-                id
-                auths {
-                    id
-                    type
-                    authId
-                    extra
-                }
-            }
-        }
-    `;
-
-    return prisma
-        .userAuths({ where: { authId, type }, first: 1 })
-        .$fragment<Array<{ user: any }>>(fragment)
-        .then(fr_result => userFragmentToUserRecord([fr_result[0].user]));
+    update_user_record: (user: UserRecord) => Promise<void>;
 }
 
 /**
- * Creates a new in-app user based on authorization data.
- * @returns string - new user (in-app) id
+ * Utility function to find existing user with Google credentials or create one
+ * if no such user exists
  */
-export async function add_new_user(
-    newUser: Omit<UserRecord, "id">
-): Promise<string> {
-    // TODO:
-    // Check that auth for this request is not in use by existing user
-
-    const authentications = AllAuthTypes.map(
-        authType => newUser.auth[authType]
-    ).filter(x => x) as Array<UserAuthCreateInput>;
-
-    if (authentications.length === 0) {
-        throw "User create call requires at least one authorization method!";
-    }
-
-    return prisma
-        .createUser({
-            auths: { create: authentications },
-        })
-        .then(user => {
-            return user.id;
-        });
-}
-
 export async function find_or_create_google_user(
+    storage: Storage,
     accessToken: string,
     refreshToken: string,
     profile: Profile
 ): Promise<UserRecord> {
-    const userRecord = await get_user_by_auth("GOOGLE", profile.id);
+    const userRecord = await storage.find_user_by_auth("GOOGLE", profile.id);
 
     if (userRecord) {
         return userRecord;
     }
 
-    return add_new_user({
-        auth: {
-            GOOGLE: {
+    return storage
+        .add_new_user({}, [
+            {
                 type: "GOOGLE",
                 authId: profile.id,
                 extra: {
@@ -140,63 +81,6 @@ export async function find_or_create_google_user(
                     profile,
                 },
             },
-        },
-    })
-        .then(get_user)
-        .then(user => {
-            if (typeof user !== "undefined") {
-                return user;
-            } else {
-                throw "Failed to create user";
-            }
-        });
-}
-
-/**
- * Find a record for given Google user profile
- * @param profile - Google user profile
- * @returns UserRecordGoogle - record of existing user or undefined, if no user
- * for this google profile is found
- */
-// export async function find_google_user(
-//     profile: Profile
-// ): Promise<UserRecord | undefined> {
-//     // FIXME:
-//     return Array.from(storage.values()).find(
-//         record => record.type === "google" && record.googleUserId === profile.id
-//     ) as UserRecordGoogle | undefined;
-// }
-
-/**
- * Mostly for testing - purge all data and clear all users from storage
- */
-export async function reset_users_storage() {
-    return prisma.deleteManyUserAuths().then(() => prisma.deleteManyUsers());
-}
-
-export async function update_user_record(user: UserRecord) {
-    // TODO:
-    // storage.set(user.userId, user);
-}
-
-type UserFragment = Array<Partial<User> & { auths: Array<UserAuthType> }>;
-function userFragmentToUserRecord(f: UserFragment): UserRecord | undefined {
-    if (f.length < 1) {
-        return undefined;
-    }
-
-    const firstRecord = f[0];
-
-    const result: UserRecord = {
-        id: firstRecord.id,
-        auth: {},
-    };
-
-    firstRecord.auths.forEach(auth => {
-        if (AllAuthTypes.includes(auth.type!)) {
-            result.auth[auth.type!] = auth;
-        }
-    });
-
-    return result;
+        ])
+        .then(storage.get_user);
 }

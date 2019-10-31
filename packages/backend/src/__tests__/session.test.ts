@@ -36,7 +36,7 @@ describe("session manipulation utils", () => {
     it("should be able to generate short-lived tokens", async () => {
         const user: UserRecord = {
             id: "123abc",
-            auth: {
+            authentications: {
                 GOOGLE: {
                     id: "345dsa",
                     type: "GOOGLE",
@@ -63,7 +63,7 @@ describe("session manipulation utils", () => {
     it("should be able to generate long-term tokens", async () => {
         const user: UserRecord = {
             id: "123abc",
-            auth: {
+            authentications: {
                 GOOGLE: {
                     id: "345dsa",
                     type: "GOOGLE",
