@@ -2,105 +2,152 @@
  * All the stuff to do with long-term persistence (db connection, etc)
  */
 
+import {
+    prisma,
+    User,
+    UserAuth,
+    AuthType,
+    Maybe,
+    UserAuthCreateInput,
+} from "../generated/prisma-client";
 import uuid from "uuid/v4";
 import { Profile } from "passport-google-oauth20";
-import { Express } from "express";
 
-interface UserRecordBase extends Express.User {
-    userId: string;
-    type: string;
+export const AllAuthTypes: Array<AuthType> = ["GOOGLE"];
+
+export type OptionalId<T extends { id: any }> = Omit<T, "id"> & {
+    id?: Maybe<T["id"]>;
+};
+
+export interface UserGoogleAuth extends OptionalId<UserAuth> {
+    type: "GOOGLE";
+    extra: {
+        accessToken: string;
+        refreshToken: string;
+        profile: Profile;
+    };
 }
 
-export interface UserRecordGoogle extends UserRecordBase {
-    type: "google";
-    googleUserId: string;
-    profile: Profile;
-    accessToken: any;
-    refreshToken: any;
-}
-interface UserRecordAnonymous extends UserRecordBase {
-    type: "anonymous";
-    createdAt: Date;
-}
+// all allowed auth types, unlike UserAuth which is a general case
+export type UserAuthType = UserGoogleAuth; // | UserFacebookAuth | ....
 
-export type UserRecord = UserRecordAnonymous | UserRecordGoogle;
-
-// FIXME:
-const storage = new Map<string, UserRecord>();
-
-export async function get_user(userId: string): Promise<UserRecord> {
-    // TODO: STUB:
-    if (
-        typeof userId !== "string" ||
-        userId.length === 0 ||
-        !storage.has(userId)
-    ) {
-        return Promise.reject(new Error("User with such Id not found"));
-    } else {
-        return Promise.resolve(storage.get(userId)!);
-    }
+export interface UserRecord extends OptionalId<User> {
+    auth: {
+        [authName in AuthType]?: UserAuthType;
+    };
 }
 
 /**
- * Creates a new in-app user based on data,
+ * Find an existing user by id
+ * @param userId
+ */
+export async function get_user(
+    userId: string
+): Promise<UserRecord | undefined> {
+    const fragment = `
+        fragment UserWithAuths on User {
+            id
+            auths {
+                id
+                type
+                authId
+                extra
+            }
+        }
+    `;
+
+    return prisma
+        .users({ where: { id: userId } })
+        .$fragment<UserFragment>(fragment)
+        .then(userFragmentToUserRecord);
+}
+
+export async function get_user_by_auth(
+    type: AuthType,
+    authId: string
+): Promise<UserRecord | undefined> {
+    if (!AllAuthTypes.includes(type)) {
+        throw "Unknown authorization type";
+    }
+
+    const fragment = `
+        fragment UserFromAuth on UserAuth {
+            id
+            user {
+                id
+                auths {
+                    id
+                    type
+                    authId
+                    extra
+                }
+            }
+        }
+    `;
+
+    return prisma
+        .userAuths({ where: { authId, type }, first: 1 })
+        .$fragment<Array<{ user: any }>>(fragment)
+        .then(fr_result => userFragmentToUserRecord([fr_result[0].user]));
+}
+
+/**
+ * Creates a new in-app user based on authorization data.
  * @returns string - new user (in-app) id
  */
 export async function add_new_user(
-    record:
-        | Omit<UserRecordAnonymous, "userId">
-        | Omit<UserRecordGoogle, "userId">
+    newUser: Omit<UserRecord, "id">
 ): Promise<string> {
-    // TODO: STUB:
+    // TODO:
+    // Check that auth for this request is not in use by existing user
 
-    // generating new unique user ID
-    let userId = uuid();
-    let count = 10;
-    while (--count > 0 && storage.has(userId)) {
-        userId = uuid();
-    }
-    if (count <= 0) {
-        throw new Error("Failed to create a new ID for user");
-    }
+    const authentications = AllAuthTypes.map(
+        authType => newUser.auth[authType]
+    ).filter(x => x) as Array<UserAuthCreateInput>;
 
-    switch (record.type) {
-        case "anonymous":
-            storage.set(userId, {
-                userId,
-                type: record.type,
-                createdAt: new Date("now"),
-            });
-            break;
-        case "google":
-            storage.set(userId, {
-                userId,
-                ...record,
-            });
-            break;
-        default:
-            throw new Error("Unknown session type");
+    if (authentications.length === 0) {
+        throw "User create call requires at least one authorization method!";
     }
 
-    return userId;
+    return prisma
+        .createUser({
+            auths: { create: authentications },
+        })
+        .then(user => user.id);
 }
 
 export async function find_or_create_google_user(
     accessToken: string,
     refreshToken: string,
     profile: Profile
-): Promise<UserRecordGoogle> {
-    const userRecord = await find_google_user(profile);
+): Promise<UserRecord> {
+    const userRecord = await get_user_by_auth("GOOGLE", profile.id);
 
     if (userRecord) {
         return userRecord;
     }
 
     return add_new_user({
-        type: "google",
-        accessToken,
-        refreshToken,
-        googleUserId: profile.id,
-        profile,
-    }).then(get_user) as Promise<UserRecordGoogle>;
+        auth: {
+            GOOGLE: {
+                type: "GOOGLE",
+                authId: profile.id,
+                extra: {
+                    accessToken,
+                    refreshToken,
+                    profile,
+                },
+            },
+        },
+    })
+        .then(get_user)
+        .then(user => {
+            if (typeof user !== "undefined") {
+                return user;
+            } else {
+                throw "Failed to create user";
+            }
+        });
 }
 
 /**
@@ -109,24 +156,45 @@ export async function find_or_create_google_user(
  * @returns UserRecordGoogle - record of existing user or undefined, if no user
  * for this google profile is found
  */
-export async function find_google_user(
-    profile: Profile
-): Promise<UserRecordGoogle | undefined> {
-    // FIXME:
-    return Array.from(storage.values()).find(
-        record => record.type === "google" && record.googleUserId === profile.id
-    ) as UserRecordGoogle | undefined;
-}
+// export async function find_google_user(
+//     profile: Profile
+// ): Promise<UserRecord | undefined> {
+//     // FIXME:
+//     return Array.from(storage.values()).find(
+//         record => record.type === "google" && record.googleUserId === profile.id
+//     ) as UserRecordGoogle | undefined;
+// }
 
 /**
  * Mostly for testing - purge all data and clear all users from storage
  */
 export async function reset_users_storage() {
-    // FIXME:
-    storage.clear();
+    return prisma.deleteManyUserAuths().then(() => prisma.deleteManyUsers());
 }
 
 export async function update_user_record(user: UserRecord) {
     // TODO:
-    storage.set(user.userId, user);
+    // storage.set(user.userId, user);
+}
+
+type UserFragment = Array<Partial<User> & { auths: Array<UserAuthType> }>;
+function userFragmentToUserRecord(f: UserFragment): UserRecord | undefined {
+    if (f.length < 1) {
+        return undefined;
+    }
+
+    const firstRecord = f[0];
+
+    const result: UserRecord = {
+        id: firstRecord.id,
+        auth: {},
+    };
+
+    firstRecord.auths.forEach(auth => {
+        if (AllAuthTypes.includes(auth.type!)) {
+            result.auth[auth.type!] = auth;
+        }
+    });
+
+    return result;
 }

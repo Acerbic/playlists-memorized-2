@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { Profile } from "passport-google-oauth20";
 import Joi from "@hapi/joi";
 
-import { UserRecordGoogle, UserRecord } from "./storage";
+import { UserGoogleAuth, UserRecord } from "./storage";
 
 interface BaseSession {
     type: string;
@@ -95,11 +95,11 @@ export async function sign_session(session: UserSession): Promise<string> {
  * This token expires in 60 seconds.
  */
 export async function create_temporary_auth_token({
-    userId,
+    id,
 }: UserRecord): Promise<string> {
     const session: LoginTokenSession = {
         type: "login-token",
-        userId,
+        userId: id!,
     };
     return jwt.sign(session, process.env.JWT_SECRET!, {
         expiresIn: 60,
@@ -109,18 +109,16 @@ export async function create_temporary_auth_token({
 /**
  * Creates a long-term authorized token for existing user
  */
-export async function create_user_session_token({
-    type,
-    userId,
-    profile,
-}: UserRecordGoogle): Promise<string> {
+export async function create_user_session_token(
+    user: UserRecord
+): Promise<string> {
     // FIXME: currently bound to Google session ? Rework for generalization
     // might be needed
     const user_session: AuthorizedGoogleSession = {
-        type,
-        userId,
-        profile,
-        userGoogleId: profile.id,
+        type: "google",
+        userId: user.id!,
+        profile: user.auth.GOOGLE!.extra.profile,
+        userGoogleId: user.auth.GOOGLE!.authId,
     };
     return sign_session(user_session);
 }

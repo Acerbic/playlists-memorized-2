@@ -7,7 +7,7 @@ import {
     LoginTokenSession,
     AuthorizedGoogleSession,
 } from "../session";
-import { UserRecordGoogle } from "../storage";
+import { UserRecord } from "../storage";
 import { mock_user_profile } from "./_utils";
 
 describe("session manipulation utils", () => {
@@ -34,13 +34,20 @@ describe("session manipulation utils", () => {
         expect(decoded_a_s.userId).toStrictEqual("abcd");
     });
     it("should be able to generate short-lived tokens", async () => {
-        const user: UserRecordGoogle = {
-            type: "google",
-            userId: "123abc",
-            accessToken: "mock_access_token",
-            refreshToken: "mock_refresh_token",
-            googleUserId: mock_user_profile.id,
-            profile: mock_user_profile,
+        const user: UserRecord = {
+            id: "123abc",
+            auth: {
+                GOOGLE: {
+                    id: "345dsa",
+                    type: "GOOGLE",
+                    authId: mock_user_profile.id,
+                    extra: {
+                        accessToken: "mock_access_token",
+                        refreshToken: "mock_refresh_token",
+                        profile: mock_user_profile,
+                    },
+                },
+            },
         };
         const short_token = await create_temporary_auth_token(user);
         const short_session = (await decode_session_token(
@@ -54,13 +61,20 @@ describe("session manipulation utils", () => {
         expect(short_session.exp).toBeLessThanOrEqual(timenow + 60);
     });
     it("should be able to generate long-term tokens", async () => {
-        const user: UserRecordGoogle = {
-            type: "google",
-            userId: "123abc",
-            accessToken: "mock_access_token",
-            refreshToken: "mock_refresh_token",
-            googleUserId: mock_user_profile.id,
-            profile: mock_user_profile,
+        const user: UserRecord = {
+            id: "123abc",
+            auth: {
+                GOOGLE: {
+                    id: "345dsa",
+                    type: "GOOGLE",
+                    authId: mock_user_profile.id,
+                    extra: {
+                        accessToken: "mock_access_token",
+                        refreshToken: "mock_refresh_token",
+                        profile: mock_user_profile,
+                    },
+                },
+            },
         };
         const long_token = await create_user_session_token(user);
         const long_session = (await decode_session_token(
