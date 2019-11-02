@@ -84,8 +84,65 @@ describe("storage with Prisma #unit", () => {
 
     it("should not allow to save user without Auth Id", async () => {
         const storage = new StoragePrisma();
-        expect(await storage.add_new_user({}, [])).toThrow();
+        expect(storage.add_new_user({}, [])).rejects.toThrowError();
     });
 
-    it.todo("should update authentication info");
+    it("should update authentication info - extra data", async () => {
+        const storage = new StoragePrisma();
+        const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
+            type: "GOOGLE",
+            authId: mock_user_profile.id,
+            extra: {
+                accessToken: "mock access token",
+                refreshToken: "mock refresh token",
+                profile: mock_user_profile,
+            },
+        };
+        const user_id = await storage.add_new_user({}, [userGoogleAuth]);
+        const user = await storage.get_user(user_id);
+        user.authentications.GOOGLE!.extra.accessToken = "changed access token";
+
+        await storage.update_user_record(user);
+
+        const changed_user = await storage.get_user(user_id);
+        expect(changed_user.authentications.GOOGLE!.extra.accessToken).toEqual(
+            "changed access token"
+        );
+        expect(changed_user.authentications.GOOGLE!.authId).toEqual(
+            user.authentications.GOOGLE!.authId
+        );
+    });
+
+    it("should update authentication info - auth id", async () => {
+        const storage = new StoragePrisma();
+        const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
+            type: "GOOGLE",
+            authId: mock_user_profile.id,
+            extra: {
+                accessToken: "mock access token",
+                refreshToken: "mock refresh token",
+                profile: mock_user_profile,
+            },
+        };
+        const user_id = await storage.add_new_user({}, [userGoogleAuth]);
+        const user = await storage.get_user(user_id);
+        user.authentications.GOOGLE!.authId = mock_user_profile.id + "+";
+        user.authentications.GOOGLE!.extra.profile.id =
+            mock_user_profile.id + "+";
+
+        await storage.update_user_record(user);
+
+        const changed_user = await storage.get_user(user_id);
+        expect(changed_user.authentications.GOOGLE!.authId).toEqual(
+            mock_user_profile.id + "+"
+        );
+        expect(changed_user.authentications.GOOGLE!.extra.profile.id).toEqual(
+            mock_user_profile.id + "+"
+        );
+        const by_auth_id_user = await storage.find_user_by_auth(
+            "GOOGLE",
+            mock_user_profile.id + "+"
+        );
+        expect(by_auth_id_user).toStrictEqual(changed_user);
+    });
 });

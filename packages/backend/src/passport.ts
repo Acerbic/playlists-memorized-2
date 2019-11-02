@@ -9,7 +9,7 @@ import {
     VerifyCallback as VerifyCB_GoogleOAuth20,
 } from "passport-google-oauth20";
 import { Request } from "express";
-import { find_or_create_google_user, Storage } from "./storage";
+import { Storage, UserNotFoundError } from "./storage";
 import {
     Strategy as JWTStrategy,
     ExtractJwt,
@@ -42,9 +42,38 @@ export function verifyGoogleOAuth20(
     if (!storage) {
         done(new Error("Express app must have a storage initiated"), false);
     } else {
-        find_or_create_google_user(storage, accessToken, refreshToken, profile)
-            .then(userRecord => done(undefined, userRecord))
-            .catch(error => done(error, false));
+        storage.find_user_by_auth("GOOGLE", profile.id).then(
+            userRecord => {
+                // TODO: check if update auth needed;
+
+                done(undefined, userRecord);
+            },
+            err => {
+                if (err instanceof UserNotFoundError) {
+                    // creating a new user for this authentication
+                    storage
+                        .add_new_user({}, [
+                            {
+                                type: "GOOGLE",
+                                authId: profile.id,
+                                extra: {
+                                    accessToken,
+                                    refreshToken,
+                                    profile,
+                                },
+                            },
+                        ])
+                        .then(storage.get_user)
+                        .then(
+                            user => done(undefined, user),
+                            err => done(err, false)
+                        );
+                } else {
+                    // some other error
+                    done(err, false);
+                }
+            }
+        );
     }
 }
 

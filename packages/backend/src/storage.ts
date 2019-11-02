@@ -53,34 +53,3 @@ export interface Storage {
 
     update_user_record: (user: UserRecord) => Promise<void>;
 }
-
-/**
- * Utility function to find existing user with Google credentials or create one
- * if no such user exists
- */
-export async function find_or_create_google_user(
-    storage: Storage,
-    accessToken: string,
-    refreshToken: string,
-    profile: Profile
-): Promise<UserRecord> {
-    const userRecord = await storage.find_user_by_auth("GOOGLE", profile.id);
-
-    if (userRecord) {
-        return userRecord;
-    }
-
-    return storage
-        .add_new_user({}, [
-            {
-                type: "GOOGLE",
-                authId: profile.id,
-                extra: {
-                    accessToken,
-                    refreshToken,
-                    profile,
-                },
-            },
-        ])
-        .then(storage.get_user);
-}

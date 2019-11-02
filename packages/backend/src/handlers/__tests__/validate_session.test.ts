@@ -89,5 +89,25 @@ describe("route /validate_session", () => {
             });
     });
 
-    it.todo("should fail valid token for missing user");
+    it("should fail valid token for missing user", async () => {
+        const storage = new MockStorage();
+        app.set("storage", storage);
+        const token: AuthorizedGoogleSession = {
+            type: "google",
+            userId: "some non-existing id",
+            userGoogleId: mock_user_profile.id,
+            profile: mock_user_profile,
+        };
+        const encoded = await sign_session(token);
+
+        return request(app)
+            .post(VALIDATE_SESSION_ENDPOINT)
+            .set("Authorization", "Bearer " + encoded)
+            .then(res => {
+                expect(res.ok).toBe(true);
+                expect(res.body as ValidateSessionResponseBody).toStrictEqual({
+                    success: false,
+                });
+            });
+    });
 });

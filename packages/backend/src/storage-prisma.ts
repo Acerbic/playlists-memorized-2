@@ -123,7 +123,28 @@ export class StoragePrisma implements Storage {
             });
     }
 
-    async update_user_record(user: UserRecord): Promise<void> {
-        // TODO:
+    async update_user_record({
+        id,
+        authentications,
+        ...data
+    }: UserRecord): Promise<void> {
+        // 1: updating user itself.
+        await this.prisma.updateUser({
+            where: { id },
+            data,
+        });
+
+        // 2: updating authentication.
+        return Promise.all(
+            AllAuthTypes.filter(
+                authName => typeof authentications[authName] !== "undefined"
+            ).map(authName => {
+                const { id, ...data } = authentications[authName]!;
+                return prisma.updateUserAuth({
+                    where: { id },
+                    data,
+                });
+            })
+        ).then(() => {}); // discarding array of results
     }
 }
