@@ -1,3 +1,12 @@
+/**
+ * Testing JWT session manipulation utilities
+ */
+
+import dotenv from "dotenv";
+dotenv.config({
+    path: ".env.test",
+});
+
 import {
     sign_session,
     decode_session_token,
@@ -10,15 +19,11 @@ import {
 import { UserRecord } from "../storage";
 import { mock_user_profile } from "./_utils";
 
-describe("session manipulation utils", () => {
-    let previous_JWT_SECRET: any;
-
+describe("session manipulation utils #unit #cold", () => {
     beforeAll(() => {
-        previous_JWT_SECRET = process.env.JWT_SECRET;
-        process.env.JWT_SECRET = "fake secret";
-    });
-    afterAll(() => {
-        process.env.JWT_SECRET = previous_JWT_SECRET;
+        if (!process.env.JWT_SECRET) {
+            process.env.JWT_SECRET = "fake secret";
+        }
     });
 
     it("should be able successfully encode-decode a session", async () => {
@@ -33,6 +38,7 @@ describe("session manipulation utils", () => {
         expect(decoded_a_s.type).toStrictEqual("anonymous");
         expect(decoded_a_s.userId).toStrictEqual("abcd");
     });
+
     it("should be able to generate short-lived tokens", async () => {
         const user: UserRecord = {
             id: "123abc",
@@ -60,6 +66,7 @@ describe("session manipulation utils", () => {
         expect(short_session.iat).toBeLessThanOrEqual(timenow);
         expect(short_session.exp).toBeLessThanOrEqual(timenow + 60);
     });
+
     it("should be able to generate long-term tokens", async () => {
         const user: UserRecord = {
             id: "123abc",

@@ -82,7 +82,10 @@ describe("storage with Prisma #unit", () => {
         expect(retrieved_user!.id).toEqual(user_id);
     });
 
-    it.todo("should not allow to save user without Auth Id");
+    it("should not allow to save user without Auth Id", async () => {
+        const storage = new StoragePrisma();
+        expect(await storage.add_new_user({}, [])).toThrow();
+    });
 
-    it.todo("should update access token");
+    it.todo("should update authentication info");
 });

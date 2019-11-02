@@ -16,12 +16,21 @@ import {
     VerifiedCallback as VerifyCB_JWT,
 } from "passport-jwt";
 
-// User verification function
-// from "profile" and with accessToken for extra data fetching,
-// construct a user entity to be passed for the middleware following
-// successful authentication (of fail authentication)
-// In the following  middleware, see req.user field
-export function verify(
+/**
+ * User verification function for "passport-google-oauth20" strategy.
+ * From Google Profile profile and with accessToken for (possible) extra data
+ * fetching, construct a user entity to be passed for the middleware following
+ * successful authentication (of fail authentication).
+ *
+ * In the following middleware, see req.user field.
+ *
+ * @param req - incoming express Request
+ * @param accessToken - Google access token
+ * @param refreshToken - Google refresh token
+ * @param profile - Google profile entity
+ * @param done - callback to passport to indicate failure or success of verification
+ */
+export function verifyGoogleOAuth20(
     req: Request,
     accessToken: string,
     refreshToken: string,
@@ -40,6 +49,27 @@ export function verify(
 }
 
 /**
+ * User verification function for "passport-google-oauth20" strategy.
+ * Malformed or outdated tokens will produce an error in authentication middleware
+ * and this function will not be called at all.
+ *
+ * @param req - incoming express Request
+ * @param payload - JWT payload decoded
+ * @param done - callback to passport to indicate failure or success of verification
+ */
+export function verifyJWT(req: Request, payload: any, done: VerifyCB_JWT) {
+    const storage: Storage = req.app.get("storage");
+    if (!storage) {
+        done(new Error("Express app must have a storage initiated"), false);
+    } else {
+        storage
+            .get_user(payload.userId)
+            .then(user => done(null, user))
+            .catch(err => done(err, false));
+    }
+}
+
+/**
  * Configure passport JS server-wise subsystem;
  * @param callbackURL URL to which Google will send user's agent after consent
  * screen with access token or error message
@@ -53,7 +83,7 @@ export function configure(callbackURL: string) {
                 callbackURL,
                 passReqToCallback: true,
             },
-            verify
+            verifyGoogleOAuth20
         )
     );
     passport.use(
@@ -63,20 +93,7 @@ export function configure(callbackURL: string) {
                 jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
                 passReqToCallback: true,
             },
-            (req: Request, payload: any, done: VerifyCB_JWT) => {
-                const storage: Storage = req.app.get("storage");
-                if (!storage) {
-                    done(
-                        new Error("Express app must have a storage initiated"),
-                        false
-                    );
-                } else {
-                    storage
-                        .get_user(payload.userId)
-                        .then(user => done(null, user))
-                        .catch(err => done(err, false));
-                }
-            }
+            verifyJWT
         )
     );
 }
