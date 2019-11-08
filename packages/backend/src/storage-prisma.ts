@@ -1,12 +1,12 @@
 /**
- * Prisma implementation of Storage contract.
+ * Prisma implementation of DbStorage contract.
  */
 
 import { prisma, User, Prisma, AuthType } from "../generated/prisma-client";
 import { BaseClientOptions } from "prisma-client-lib";
 
 import {
-    Storage,
+    DbStorage,
     UserRecord,
     UserAuthType,
     AllAuthTypes,
@@ -42,7 +42,7 @@ function userFragmentToUserRecord(f: UserFragment): UserRecord {
     return result;
 }
 
-export class StoragePrisma implements Storage {
+export class StoragePrisma implements DbStorage {
     private prisma: Prisma;
 
     constructor(options?: BaseClientOptions) {

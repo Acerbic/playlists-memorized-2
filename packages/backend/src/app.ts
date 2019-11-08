@@ -28,14 +28,14 @@ import passportConfigure from "./passport";
 
 import routes from "./routes";
 import passport from "passport";
-import { Storage } from "./storage";
+import { DbStorage } from "./storage";
 import { StoragePrisma } from "./storage-prisma";
 
 export interface AppOptions {
     host?: string;
     port?: string;
     logger?: Logger;
-    storage?: Storage;
+    storage?: DbStorage;
 }
 
 export default function makeApp(options?: AppOptions) {

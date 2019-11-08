@@ -11,11 +11,11 @@ import {
 } from "../../session";
 
 import { ValidateSessionResponseBody } from "../validate_session";
+import { mock_user_profile } from "../../__tests__/_utils";
 import {
-    mock_user_profile,
     MockSingleUserStorage,
-    MockStorage,
-} from "../../__tests__/_utils";
+    MockStorageUsers,
+} from "../../__tests__/_mock_storage_user";
 
 describe("route /validate_session", () => {
     let app: Express;
@@ -28,8 +28,8 @@ describe("route /validate_session", () => {
     });
 
     beforeEach(() => {
-        // return reset_users_storage();
-        app.set("storage", new MockStorage());
+        // reset app storage;
+        app.set("storage", new MockStorageUsers());
     });
 
     it("should not respond to GET method", () =>
@@ -90,7 +90,7 @@ describe("route /validate_session", () => {
     });
 
     it("should fail valid token for missing user", async () => {
-        const storage = new MockStorage();
+        const storage = new MockStorageUsers();
         app.set("storage", storage);
         const token: AuthorizedGoogleSession = {
             type: "google",

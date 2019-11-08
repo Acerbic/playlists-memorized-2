@@ -9,7 +9,7 @@ import {
     VerifyCallback as VerifyCB_GoogleOAuth20,
 } from "passport-google-oauth20";
 import { Request } from "express";
-import { Storage, UserNotFoundError } from "./storage";
+import { DbStorage, UserNotFoundError } from "./storage";
 import {
     Strategy as JWTStrategy,
     ExtractJwt,
@@ -38,7 +38,7 @@ export function verifyGoogleOAuth20(
     done: VerifyCB_GoogleOAuth20
 ): void {
     // fetch user entity
-    const storage: Storage = req.app.get("storage");
+    const storage: DbStorage = req.app.get("storage");
     if (!storage) {
         done(new Error("Express app must have a storage initiated"), false);
     } else {
@@ -48,7 +48,7 @@ export function verifyGoogleOAuth20(
 
                 done(undefined, userRecord);
             },
-            err => {
+            (err: any) => {
                 if (err instanceof UserNotFoundError) {
                     // creating a new user for this authentication
                     storage
@@ -66,7 +66,7 @@ export function verifyGoogleOAuth20(
                         .then(storage.get_user)
                         .then(
                             user => done(undefined, user),
-                            err => done(err, false)
+                            (err: any) => done(err, false)
                         );
                 } else {
                     // some other error
@@ -87,14 +87,14 @@ export function verifyGoogleOAuth20(
  * @param done - callback to passport to indicate failure or success of verification
  */
 export function verifyJWT(req: Request, payload: any, done: VerifyCB_JWT) {
-    const storage: Storage = req.app.get("storage");
+    const storage: DbStorage = req.app.get("storage");
     if (!storage) {
         done(new Error("Express app must have a storage initiated"), false);
     } else {
         storage
             .get_user(payload.userId)
             .then(user => done(null, user))
-            .catch(err => done(err, false));
+            .catch((err: any) => done(err, false));
     }
 }
 

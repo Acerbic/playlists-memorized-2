@@ -6,16 +6,19 @@ import makeApp from "../../app";
 
 import { create_temporary_auth_token } from "../../session";
 
-import { MockStorage, MockSingleUserStorage } from "../../__tests__/_utils";
+import {
+    MockStorageUsers,
+    MockSingleUserStorage,
+} from "../../__tests__/_mock_storage_user";
 import { UserRecord } from "../../storage";
 
 describe("route /start_session", () => {
     let app: Express;
     beforeAll(() => {
-        app = makeApp({ storage: new MockStorage() });
+        app = makeApp({ storage: new MockStorageUsers() });
     });
     beforeEach(() => {
-        app.set("storage", new MockStorage());
+        app.set("storage", new MockStorageUsers());
     });
     it("should fail if no Authorization header", () =>
         request(app)

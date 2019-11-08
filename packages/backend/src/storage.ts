@@ -29,7 +29,7 @@ export interface UserRecord extends User {
     };
 }
 
-export interface Storage {
+export interface DbStorage {
     /**
      * Find an existing user by id
      * If user with this id is not found, rejects with UserNotFoundError
