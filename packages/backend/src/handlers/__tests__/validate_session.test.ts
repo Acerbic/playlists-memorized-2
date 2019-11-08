@@ -32,25 +32,20 @@ describe("route /validate_session", () => {
         app.set("storage", new MockStorageUsers());
     });
 
-    it("should not respond to GET method", () =>
-        request(app)
-            .get(VALIDATE_SESSION_ENDPOINT)
-            .expect(404));
-
     it("should contain proper token argument", () =>
         request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .expect(401));
 
     it("should contain proper token argument 3", () =>
         request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer ")
             .expect(401));
 
     it("should contain proper token argument 4", () =>
         request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer " + "some value")
             .expect(401));
 
@@ -61,9 +56,15 @@ describe("route /validate_session", () => {
         };
         const encoded = jwt.sign(token, process.env.JWT_SECRET!);
         return request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer " + encoded)
-            .then(res => expect(res.ok).toBe(false));
+            .then(res => {
+                expect(res.ok).toBe(true);
+                expect(res.body as ValidateSessionResponseBody).toHaveProperty(
+                    "success",
+                    false
+                );
+            });
     });
 
     it("should confirm a valid token", async () => {
@@ -78,7 +79,7 @@ describe("route /validate_session", () => {
         const encoded = await sign_session(token);
 
         return request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer " + encoded)
             .then(res => {
                 expect(res.ok).toBe(true);
@@ -101,13 +102,14 @@ describe("route /validate_session", () => {
         const encoded = await sign_session(token);
 
         return request(app)
-            .post(VALIDATE_SESSION_ENDPOINT)
+            .get(VALIDATE_SESSION_ENDPOINT)
             .set("Authorization", "Bearer " + encoded)
             .then(res => {
                 expect(res.ok).toBe(true);
-                expect(res.body as ValidateSessionResponseBody).toStrictEqual({
-                    success: false,
-                });
+                expect(res.body as ValidateSessionResponseBody).toHaveProperty(
+                    "success",
+                    false
+                );
             });
     });
 });

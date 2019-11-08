@@ -1,34 +1,43 @@
-import { Request, Response, Handler } from "express";
+import { Request, Response, Handler, NextFunction } from "express";
 import asyncHandler from "express-async-handler";
 import passport from "passport";
 
 import { BaseAPIResponse } from "../routes";
-import { UserRecord } from "../storage";
+import { UserRecord, UserNotFoundError } from "../storage";
 
 export const MALFORMED_SESSION_TOKEN = "MALFORMED_SESSION_TOKEN";
 export const EXPIRED_SESSION_TOKEN = "EXPIRED_SESSION_TOKEN";
 
 export type ValidateSessionResponseBody = BaseAPIResponse;
 
+/**
+ * Error handled in case authentication failed
+ */
+function JWTAuthErrorHandler(
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    if (err instanceof UserNotFoundError) {
+        res.status(200);
+        res.json(<BaseAPIResponse>{
+            success: false,
+            errorMsg: err.message,
+            errorCode: MALFORMED_SESSION_TOKEN,
+        });
+    } else {
+        // not an authentication error - continue with default error handling
+        next(err);
+    }
+}
+
 export default <Array<Handler>>[
     passport.authenticate("jwt", { session: false }),
+    JWTAuthErrorHandler,
     asyncHandler(async function(req: Request, res: Response) {
-        try {
-            const user = req.user as UserRecord;
-
-            res.json(<BaseAPIResponse>{
-                success: true,
-            });
-        } catch (err) {
-            res.status(400);
-            res.json(<BaseAPIResponse>{
-                success: false,
-                errorMsg:
-                    typeof err === "object"
-                        ? (err as Error).message
-                        : String(err),
-                errorCode: MALFORMED_SESSION_TOKEN,
-            });
-        }
+        res.json(<BaseAPIResponse>{
+            success: true,
+        });
     }),
 ];
