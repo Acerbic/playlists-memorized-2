@@ -1,3 +1,4 @@
+# Ways to authenticate a user login
 enum AuthType {
   GOOGLE
 }
@@ -15,4 +16,26 @@ type UserAuth {
   user: User!
   authId: String! # id in the target authentication system
   extra: Json # service-spefic data (google profile, access_token, etc)
+}
+
+# Different sources of playlists - Youtube, Spotify, etc.
+enum PlaylistType {
+  YOUTUBE
+}
+
+# Entry for a playlist
+type Playlist {
+  id: ID! @id
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String! # id in the (type) playlist source system
+  snapshots: [Snapshot!]!
+}
+
+# A playlist content at certain point in time
+type Snapshot {
+  id: ID! @id
+  created_at: DateTime!
+  data: Json # array of song entries and any other info
 }

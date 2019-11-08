@@ -16,6 +16,8 @@ export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> &
 export type Maybe<T> = T | undefined | null;
 
 export interface Exists {
+  playlist: (where?: PlaylistWhereInput) => Promise<boolean>;
+  snapshot: (where?: SnapshotWhereInput) => Promise<boolean>;
   user: (where?: UserWhereInput) => Promise<boolean>;
   userAuth: (where?: UserAuthWhereInput) => Promise<boolean>;
 }
@@ -39,6 +41,44 @@ export interface Prisma {
    * Queries
    */
 
+  playlist: (where: PlaylistWhereUniqueInput) => PlaylistNullablePromise;
+  playlists: (args?: {
+    where?: PlaylistWhereInput;
+    orderBy?: PlaylistOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => FragmentableArray<Playlist>;
+  playlistsConnection: (args?: {
+    where?: PlaylistWhereInput;
+    orderBy?: PlaylistOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => PlaylistConnectionPromise;
+  snapshot: (where: SnapshotWhereUniqueInput) => SnapshotNullablePromise;
+  snapshots: (args?: {
+    where?: SnapshotWhereInput;
+    orderBy?: SnapshotOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => FragmentableArray<Snapshot>;
+  snapshotsConnection: (args?: {
+    where?: SnapshotWhereInput;
+    orderBy?: SnapshotOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => SnapshotConnectionPromise;
   user: (where: UserWhereUniqueInput) => UserNullablePromise;
   users: (args?: {
     where?: UserWhereInput;
@@ -83,6 +123,38 @@ export interface Prisma {
    * Mutations
    */
 
+  createPlaylist: (data: PlaylistCreateInput) => PlaylistPromise;
+  updatePlaylist: (args: {
+    data: PlaylistUpdateInput;
+    where: PlaylistWhereUniqueInput;
+  }) => PlaylistPromise;
+  updateManyPlaylists: (args: {
+    data: PlaylistUpdateManyMutationInput;
+    where?: PlaylistWhereInput;
+  }) => BatchPayloadPromise;
+  upsertPlaylist: (args: {
+    where: PlaylistWhereUniqueInput;
+    create: PlaylistCreateInput;
+    update: PlaylistUpdateInput;
+  }) => PlaylistPromise;
+  deletePlaylist: (where: PlaylistWhereUniqueInput) => PlaylistPromise;
+  deleteManyPlaylists: (where?: PlaylistWhereInput) => BatchPayloadPromise;
+  createSnapshot: (data: SnapshotCreateInput) => SnapshotPromise;
+  updateSnapshot: (args: {
+    data: SnapshotUpdateInput;
+    where: SnapshotWhereUniqueInput;
+  }) => SnapshotPromise;
+  updateManySnapshots: (args: {
+    data: SnapshotUpdateManyMutationInput;
+    where?: SnapshotWhereInput;
+  }) => BatchPayloadPromise;
+  upsertSnapshot: (args: {
+    where: SnapshotWhereUniqueInput;
+    create: SnapshotCreateInput;
+    update: SnapshotUpdateInput;
+  }) => SnapshotPromise;
+  deleteSnapshot: (where: SnapshotWhereUniqueInput) => SnapshotPromise;
+  deleteManySnapshots: (where?: SnapshotWhereInput) => BatchPayloadPromise;
   createUser: (data: UserCreateInput) => UserPromise;
   updateUser: (args: {
     data: UserUpdateInput;
@@ -120,6 +192,12 @@ export interface Prisma {
 }
 
 export interface Subscription {
+  playlist: (
+    where?: PlaylistSubscriptionWhereInput
+  ) => PlaylistSubscriptionPayloadSubscription;
+  snapshot: (
+    where?: SnapshotSubscriptionWhereInput
+  ) => SnapshotSubscriptionPayloadSubscription;
   user: (
     where?: UserSubscriptionWhereInput
   ) => UserSubscriptionPayloadSubscription;
@@ -136,6 +214,28 @@ export interface ClientConstructor<T> {
  * Types
  */
 
+export type PlaylistType = "YOUTUBE";
+
+export type SnapshotOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "created_at_ASC"
+  | "created_at_DESC"
+  | "data_ASC"
+  | "data_DESC";
+
+export type PlaylistOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "created_at_ASC"
+  | "created_at_DESC"
+  | "modified_at_ASC"
+  | "modified_at_DESC"
+  | "type_ASC"
+  | "type_DESC"
+  | "source_id_ASC"
+  | "source_id_DESC";
+
 export type AuthType = "GOOGLE";
 
 export type UserAuthOrderByInput =
@@ -151,6 +251,93 @@ export type UserAuthOrderByInput =
 export type UserOrderByInput = "id_ASC" | "id_DESC";
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
+
+export type PlaylistWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export interface SnapshotWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  created_at?: Maybe<DateTimeInput>;
+  created_at_not?: Maybe<DateTimeInput>;
+  created_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_lt?: Maybe<DateTimeInput>;
+  created_at_lte?: Maybe<DateTimeInput>;
+  created_at_gt?: Maybe<DateTimeInput>;
+  created_at_gte?: Maybe<DateTimeInput>;
+  AND?: Maybe<SnapshotWhereInput[] | SnapshotWhereInput>;
+}
+
+export interface PlaylistWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  created_at?: Maybe<DateTimeInput>;
+  created_at_not?: Maybe<DateTimeInput>;
+  created_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_lt?: Maybe<DateTimeInput>;
+  created_at_lte?: Maybe<DateTimeInput>;
+  created_at_gt?: Maybe<DateTimeInput>;
+  created_at_gte?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  modified_at_not?: Maybe<DateTimeInput>;
+  modified_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  modified_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  modified_at_lt?: Maybe<DateTimeInput>;
+  modified_at_lte?: Maybe<DateTimeInput>;
+  modified_at_gt?: Maybe<DateTimeInput>;
+  modified_at_gte?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  type_not?: Maybe<PlaylistType>;
+  type_in?: Maybe<PlaylistType[] | PlaylistType>;
+  type_not_in?: Maybe<PlaylistType[] | PlaylistType>;
+  source_id?: Maybe<String>;
+  source_id_not?: Maybe<String>;
+  source_id_in?: Maybe<String[] | String>;
+  source_id_not_in?: Maybe<String[] | String>;
+  source_id_lt?: Maybe<String>;
+  source_id_lte?: Maybe<String>;
+  source_id_gt?: Maybe<String>;
+  source_id_gte?: Maybe<String>;
+  source_id_contains?: Maybe<String>;
+  source_id_not_contains?: Maybe<String>;
+  source_id_starts_with?: Maybe<String>;
+  source_id_not_starts_with?: Maybe<String>;
+  source_id_ends_with?: Maybe<String>;
+  source_id_not_ends_with?: Maybe<String>;
+  snapshots_some?: Maybe<SnapshotWhereInput>;
+  AND?: Maybe<PlaylistWhereInput[] | PlaylistWhereInput>;
+}
+
+export type SnapshotWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
 
 export type UserWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
@@ -215,6 +402,126 @@ export interface UserWhereInput {
 export type UserAuthWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
 }>;
+
+export interface PlaylistCreateInput {
+  id?: Maybe<ID_Input>;
+  created_at: DateTimeInput;
+  modified_at: DateTimeInput;
+  type: PlaylistType;
+  source_id: String;
+  snapshots?: Maybe<SnapshotCreateManyInput>;
+}
+
+export interface SnapshotCreateManyInput {
+  create?: Maybe<SnapshotCreateInput[] | SnapshotCreateInput>;
+  connect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+}
+
+export interface SnapshotCreateInput {
+  id?: Maybe<ID_Input>;
+  created_at: DateTimeInput;
+  data?: Maybe<Json>;
+}
+
+export interface PlaylistUpdateInput {
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+  snapshots?: Maybe<SnapshotUpdateManyInput>;
+}
+
+export interface SnapshotUpdateManyInput {
+  create?: Maybe<SnapshotCreateInput[] | SnapshotCreateInput>;
+  update?: Maybe<
+    | SnapshotUpdateWithWhereUniqueNestedInput[]
+    | SnapshotUpdateWithWhereUniqueNestedInput
+  >;
+  upsert?: Maybe<
+    | SnapshotUpsertWithWhereUniqueNestedInput[]
+    | SnapshotUpsertWithWhereUniqueNestedInput
+  >;
+  delete?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+  connect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+  set?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+  disconnect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+  deleteMany?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
+  updateMany?: Maybe<
+    | SnapshotUpdateManyWithWhereNestedInput[]
+    | SnapshotUpdateManyWithWhereNestedInput
+  >;
+}
+
+export interface SnapshotUpdateWithWhereUniqueNestedInput {
+  where: SnapshotWhereUniqueInput;
+  data: SnapshotUpdateDataInput;
+}
+
+export interface SnapshotUpdateDataInput {
+  created_at?: Maybe<DateTimeInput>;
+  data?: Maybe<Json>;
+}
+
+export interface SnapshotUpsertWithWhereUniqueNestedInput {
+  where: SnapshotWhereUniqueInput;
+  update: SnapshotUpdateDataInput;
+  create: SnapshotCreateInput;
+}
+
+export interface SnapshotScalarWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  created_at?: Maybe<DateTimeInput>;
+  created_at_not?: Maybe<DateTimeInput>;
+  created_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_lt?: Maybe<DateTimeInput>;
+  created_at_lte?: Maybe<DateTimeInput>;
+  created_at_gt?: Maybe<DateTimeInput>;
+  created_at_gte?: Maybe<DateTimeInput>;
+  AND?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
+  OR?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
+  NOT?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
+}
+
+export interface SnapshotUpdateManyWithWhereNestedInput {
+  where: SnapshotScalarWhereInput;
+  data: SnapshotUpdateManyDataInput;
+}
+
+export interface SnapshotUpdateManyDataInput {
+  created_at?: Maybe<DateTimeInput>;
+  data?: Maybe<Json>;
+}
+
+export interface PlaylistUpdateManyMutationInput {
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+}
+
+export interface SnapshotUpdateInput {
+  created_at?: Maybe<DateTimeInput>;
+  data?: Maybe<Json>;
+}
+
+export interface SnapshotUpdateManyMutationInput {
+  created_at?: Maybe<DateTimeInput>;
+  data?: Maybe<Json>;
+}
 
 export interface UserCreateInput {
   id?: Maybe<ID_Input>;
@@ -363,6 +670,28 @@ export interface UserAuthUpdateManyMutationInput {
   extra?: Maybe<Json>;
 }
 
+export interface PlaylistSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<PlaylistWhereInput>;
+  AND?: Maybe<
+    PlaylistSubscriptionWhereInput[] | PlaylistSubscriptionWhereInput
+  >;
+}
+
+export interface SnapshotSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<SnapshotWhereInput>;
+  AND?: Maybe<
+    SnapshotSubscriptionWhereInput[] | SnapshotSubscriptionWhereInput
+  >;
+}
+
 export interface UserSubscriptionWhereInput {
   mutation_in?: Maybe<MutationType[] | MutationType>;
   updatedFields_contains?: Maybe<String>;
@@ -385,6 +714,232 @@ export interface UserAuthSubscriptionWhereInput {
 
 export interface NodeNode {
   id: ID_Output;
+}
+
+export interface Playlist {
+  id: ID_Output;
+  created_at: DateTimeOutput;
+  modified_at: DateTimeOutput;
+  type: PlaylistType;
+  source_id: String;
+}
+
+export interface PlaylistPromise extends Promise<Playlist>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  modified_at: () => Promise<DateTimeOutput>;
+  type: () => Promise<PlaylistType>;
+  source_id: () => Promise<String>;
+  snapshots: <T = FragmentableArray<Snapshot>>(args?: {
+    where?: SnapshotWhereInput;
+    orderBy?: SnapshotOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface PlaylistSubscription
+  extends Promise<AsyncIterator<Playlist>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  modified_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<PlaylistType>>;
+  source_id: () => Promise<AsyncIterator<String>>;
+  snapshots: <T = Promise<AsyncIterator<SnapshotSubscription>>>(args?: {
+    where?: SnapshotWhereInput;
+    orderBy?: SnapshotOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface PlaylistNullablePromise
+  extends Promise<Playlist | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  modified_at: () => Promise<DateTimeOutput>;
+  type: () => Promise<PlaylistType>;
+  source_id: () => Promise<String>;
+  snapshots: <T = FragmentableArray<Snapshot>>(args?: {
+    where?: SnapshotWhereInput;
+    orderBy?: SnapshotOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface Snapshot {
+  id: ID_Output;
+  created_at: DateTimeOutput;
+  data?: Json;
+}
+
+export interface SnapshotPromise extends Promise<Snapshot>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  data: () => Promise<Json>;
+}
+
+export interface SnapshotSubscription
+  extends Promise<AsyncIterator<Snapshot>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  data: () => Promise<AsyncIterator<Json>>;
+}
+
+export interface SnapshotNullablePromise
+  extends Promise<Snapshot | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  data: () => Promise<Json>;
+}
+
+export interface PlaylistConnection {
+  pageInfo: PageInfo;
+  edges: PlaylistEdge[];
+}
+
+export interface PlaylistConnectionPromise
+  extends Promise<PlaylistConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<PlaylistEdge>>() => T;
+  aggregate: <T = AggregatePlaylistPromise>() => T;
+}
+
+export interface PlaylistConnectionSubscription
+  extends Promise<AsyncIterator<PlaylistConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<PlaylistEdgeSubscription>>>() => T;
+  aggregate: <T = AggregatePlaylistSubscription>() => T;
+}
+
+export interface PageInfo {
+  hasNextPage: Boolean;
+  hasPreviousPage: Boolean;
+  startCursor?: String;
+  endCursor?: String;
+}
+
+export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
+  hasNextPage: () => Promise<Boolean>;
+  hasPreviousPage: () => Promise<Boolean>;
+  startCursor: () => Promise<String>;
+  endCursor: () => Promise<String>;
+}
+
+export interface PageInfoSubscription
+  extends Promise<AsyncIterator<PageInfo>>,
+    Fragmentable {
+  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
+  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
+  startCursor: () => Promise<AsyncIterator<String>>;
+  endCursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PlaylistEdge {
+  node: Playlist;
+  cursor: String;
+}
+
+export interface PlaylistEdgePromise
+  extends Promise<PlaylistEdge>,
+    Fragmentable {
+  node: <T = PlaylistPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PlaylistEdgeSubscription
+  extends Promise<AsyncIterator<PlaylistEdge>>,
+    Fragmentable {
+  node: <T = PlaylistSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregatePlaylist {
+  count: Int;
+}
+
+export interface AggregatePlaylistPromise
+  extends Promise<AggregatePlaylist>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePlaylistSubscription
+  extends Promise<AsyncIterator<AggregatePlaylist>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface SnapshotConnection {
+  pageInfo: PageInfo;
+  edges: SnapshotEdge[];
+}
+
+export interface SnapshotConnectionPromise
+  extends Promise<SnapshotConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<SnapshotEdge>>() => T;
+  aggregate: <T = AggregateSnapshotPromise>() => T;
+}
+
+export interface SnapshotConnectionSubscription
+  extends Promise<AsyncIterator<SnapshotConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<SnapshotEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateSnapshotSubscription>() => T;
+}
+
+export interface SnapshotEdge {
+  node: Snapshot;
+  cursor: String;
+}
+
+export interface SnapshotEdgePromise
+  extends Promise<SnapshotEdge>,
+    Fragmentable {
+  node: <T = SnapshotPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface SnapshotEdgeSubscription
+  extends Promise<AsyncIterator<SnapshotEdge>>,
+    Fragmentable {
+  node: <T = SnapshotSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateSnapshot {
+  count: Int;
+}
+
+export interface AggregateSnapshotPromise
+  extends Promise<AggregateSnapshot>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateSnapshotSubscription
+  extends Promise<AsyncIterator<AggregateSnapshot>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface User {
@@ -488,29 +1043,6 @@ export interface UserConnectionSubscription
   pageInfo: <T = PageInfoSubscription>() => T;
   edges: <T = Promise<AsyncIterator<UserEdgeSubscription>>>() => T;
   aggregate: <T = AggregateUserSubscription>() => T;
-}
-
-export interface PageInfo {
-  hasNextPage: Boolean;
-  hasPreviousPage: Boolean;
-  startCursor?: String;
-  endCursor?: String;
-}
-
-export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
-  hasNextPage: () => Promise<Boolean>;
-  hasPreviousPage: () => Promise<Boolean>;
-  startCursor: () => Promise<String>;
-  endCursor: () => Promise<String>;
-}
-
-export interface PageInfoSubscription
-  extends Promise<AsyncIterator<PageInfo>>,
-    Fragmentable {
-  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
-  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
-  startCursor: () => Promise<AsyncIterator<String>>;
-  endCursor: () => Promise<AsyncIterator<String>>;
 }
 
 export interface UserEdge {
@@ -618,6 +1150,106 @@ export interface BatchPayloadSubscription
   count: () => Promise<AsyncIterator<Long>>;
 }
 
+export interface PlaylistSubscriptionPayload {
+  mutation: MutationType;
+  node: Playlist;
+  updatedFields: String[];
+  previousValues: PlaylistPreviousValues;
+}
+
+export interface PlaylistSubscriptionPayloadPromise
+  extends Promise<PlaylistSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = PlaylistPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PlaylistPreviousValuesPromise>() => T;
+}
+
+export interface PlaylistSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PlaylistSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PlaylistSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PlaylistPreviousValuesSubscription>() => T;
+}
+
+export interface PlaylistPreviousValues {
+  id: ID_Output;
+  created_at: DateTimeOutput;
+  modified_at: DateTimeOutput;
+  type: PlaylistType;
+  source_id: String;
+}
+
+export interface PlaylistPreviousValuesPromise
+  extends Promise<PlaylistPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  modified_at: () => Promise<DateTimeOutput>;
+  type: () => Promise<PlaylistType>;
+  source_id: () => Promise<String>;
+}
+
+export interface PlaylistPreviousValuesSubscription
+  extends Promise<AsyncIterator<PlaylistPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  modified_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  type: () => Promise<AsyncIterator<PlaylistType>>;
+  source_id: () => Promise<AsyncIterator<String>>;
+}
+
+export interface SnapshotSubscriptionPayload {
+  mutation: MutationType;
+  node: Snapshot;
+  updatedFields: String[];
+  previousValues: SnapshotPreviousValues;
+}
+
+export interface SnapshotSubscriptionPayloadPromise
+  extends Promise<SnapshotSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = SnapshotPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = SnapshotPreviousValuesPromise>() => T;
+}
+
+export interface SnapshotSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<SnapshotSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = SnapshotSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = SnapshotPreviousValuesSubscription>() => T;
+}
+
+export interface SnapshotPreviousValues {
+  id: ID_Output;
+  created_at: DateTimeOutput;
+  data?: Json;
+}
+
+export interface SnapshotPreviousValuesPromise
+  extends Promise<SnapshotPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  created_at: () => Promise<DateTimeOutput>;
+  data: () => Promise<Json>;
+}
+
+export interface SnapshotPreviousValuesSubscription
+  extends Promise<AsyncIterator<SnapshotPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  data: () => Promise<AsyncIterator<Json>>;
+}
+
 export interface UserSubscriptionPayload {
   mutation: MutationType;
   node: User;
@@ -716,6 +1348,16 @@ export type ID_Input = string | number;
 export type ID_Output = string;
 
 /*
+DateTime scalar input type, allowing Date
+*/
+export type DateTimeInput = Date | string;
+
+/*
+DateTime scalar output type, which is always a string
+*/
+export type DateTimeOutput = string;
+
+/*
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
 */
 export type String = string;
@@ -749,6 +1391,18 @@ export const models: Model[] = [
   },
   {
     name: "UserAuth",
+    embedded: false
+  },
+  {
+    name: "PlaylistType",
+    embedded: false
+  },
+  {
+    name: "Playlist",
+    embedded: false
+  },
+  {
+    name: "Snapshot",
     embedded: false
   }
 ];

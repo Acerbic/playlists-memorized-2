@@ -1,3 +1,11 @@
+type AggregatePlaylist {
+  count: Int!
+}
+
+type AggregateSnapshot {
+  count: Int!
+}
+
 type AggregateUser {
   count: Int!
 }
@@ -14,11 +22,25 @@ type BatchPayload {
   count: Long!
 }
 
+scalar DateTime
+
 scalar Json
 
 scalar Long
 
 type Mutation {
+  createPlaylist(data: PlaylistCreateInput!): Playlist!
+  updatePlaylist(data: PlaylistUpdateInput!, where: PlaylistWhereUniqueInput!): Playlist
+  updateManyPlaylists(data: PlaylistUpdateManyMutationInput!, where: PlaylistWhereInput): BatchPayload!
+  upsertPlaylist(where: PlaylistWhereUniqueInput!, create: PlaylistCreateInput!, update: PlaylistUpdateInput!): Playlist!
+  deletePlaylist(where: PlaylistWhereUniqueInput!): Playlist
+  deleteManyPlaylists(where: PlaylistWhereInput): BatchPayload!
+  createSnapshot(data: SnapshotCreateInput!): Snapshot!
+  updateSnapshot(data: SnapshotUpdateInput!, where: SnapshotWhereUniqueInput!): Snapshot
+  updateManySnapshots(data: SnapshotUpdateManyMutationInput!, where: SnapshotWhereInput): BatchPayload!
+  upsertSnapshot(where: SnapshotWhereUniqueInput!, create: SnapshotCreateInput!, update: SnapshotUpdateInput!): Snapshot!
+  deleteSnapshot(where: SnapshotWhereUniqueInput!): Snapshot
+  deleteManySnapshots(where: SnapshotWhereInput): BatchPayload!
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
@@ -49,7 +71,155 @@ type PageInfo {
   endCursor: String
 }
 
+type Playlist {
+  id: ID!
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String!
+  snapshots(where: SnapshotWhereInput, orderBy: SnapshotOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Snapshot!]
+}
+
+type PlaylistConnection {
+  pageInfo: PageInfo!
+  edges: [PlaylistEdge]!
+  aggregate: AggregatePlaylist!
+}
+
+input PlaylistCreateInput {
+  id: ID
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String!
+  snapshots: SnapshotCreateManyInput
+}
+
+type PlaylistEdge {
+  node: Playlist!
+  cursor: String!
+}
+
+enum PlaylistOrderByInput {
+  id_ASC
+  id_DESC
+  created_at_ASC
+  created_at_DESC
+  modified_at_ASC
+  modified_at_DESC
+  type_ASC
+  type_DESC
+  source_id_ASC
+  source_id_DESC
+}
+
+type PlaylistPreviousValues {
+  id: ID!
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String!
+}
+
+type PlaylistSubscriptionPayload {
+  mutation: MutationType!
+  node: Playlist
+  updatedFields: [String!]
+  previousValues: PlaylistPreviousValues
+}
+
+input PlaylistSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: PlaylistWhereInput
+  AND: [PlaylistSubscriptionWhereInput!]
+}
+
+enum PlaylistType {
+  YOUTUBE
+}
+
+input PlaylistUpdateInput {
+  created_at: DateTime
+  modified_at: DateTime
+  type: PlaylistType
+  source_id: String
+  snapshots: SnapshotUpdateManyInput
+}
+
+input PlaylistUpdateManyMutationInput {
+  created_at: DateTime
+  modified_at: DateTime
+  type: PlaylistType
+  source_id: String
+}
+
+input PlaylistWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  created_at: DateTime
+  created_at_not: DateTime
+  created_at_in: [DateTime!]
+  created_at_not_in: [DateTime!]
+  created_at_lt: DateTime
+  created_at_lte: DateTime
+  created_at_gt: DateTime
+  created_at_gte: DateTime
+  modified_at: DateTime
+  modified_at_not: DateTime
+  modified_at_in: [DateTime!]
+  modified_at_not_in: [DateTime!]
+  modified_at_lt: DateTime
+  modified_at_lte: DateTime
+  modified_at_gt: DateTime
+  modified_at_gte: DateTime
+  type: PlaylistType
+  type_not: PlaylistType
+  type_in: [PlaylistType!]
+  type_not_in: [PlaylistType!]
+  source_id: String
+  source_id_not: String
+  source_id_in: [String!]
+  source_id_not_in: [String!]
+  source_id_lt: String
+  source_id_lte: String
+  source_id_gt: String
+  source_id_gte: String
+  source_id_contains: String
+  source_id_not_contains: String
+  source_id_starts_with: String
+  source_id_not_starts_with: String
+  source_id_ends_with: String
+  source_id_not_ends_with: String
+  snapshots_some: SnapshotWhereInput
+  AND: [PlaylistWhereInput!]
+}
+
+input PlaylistWhereUniqueInput {
+  id: ID
+}
+
 type Query {
+  playlist(where: PlaylistWhereUniqueInput!): Playlist
+  playlists(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Playlist]!
+  playlistsConnection(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PlaylistConnection!
+  snapshot(where: SnapshotWhereUniqueInput!): Snapshot
+  snapshots(where: SnapshotWhereInput, orderBy: SnapshotOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Snapshot]!
+  snapshotsConnection(where: SnapshotWhereInput, orderBy: SnapshotOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): SnapshotConnection!
   user(where: UserWhereUniqueInput!): User
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
@@ -59,7 +229,174 @@ type Query {
   node(id: ID!): Node
 }
 
+type Snapshot {
+  id: ID!
+  created_at: DateTime!
+  data: Json
+}
+
+type SnapshotConnection {
+  pageInfo: PageInfo!
+  edges: [SnapshotEdge]!
+  aggregate: AggregateSnapshot!
+}
+
+input SnapshotCreateInput {
+  id: ID
+  created_at: DateTime!
+  data: Json
+}
+
+input SnapshotCreateManyInput {
+  create: [SnapshotCreateInput!]
+  connect: [SnapshotWhereUniqueInput!]
+}
+
+type SnapshotEdge {
+  node: Snapshot!
+  cursor: String!
+}
+
+enum SnapshotOrderByInput {
+  id_ASC
+  id_DESC
+  created_at_ASC
+  created_at_DESC
+  data_ASC
+  data_DESC
+}
+
+type SnapshotPreviousValues {
+  id: ID!
+  created_at: DateTime!
+  data: Json
+}
+
+input SnapshotScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  created_at: DateTime
+  created_at_not: DateTime
+  created_at_in: [DateTime!]
+  created_at_not_in: [DateTime!]
+  created_at_lt: DateTime
+  created_at_lte: DateTime
+  created_at_gt: DateTime
+  created_at_gte: DateTime
+  AND: [SnapshotScalarWhereInput!]
+  OR: [SnapshotScalarWhereInput!]
+  NOT: [SnapshotScalarWhereInput!]
+}
+
+type SnapshotSubscriptionPayload {
+  mutation: MutationType!
+  node: Snapshot
+  updatedFields: [String!]
+  previousValues: SnapshotPreviousValues
+}
+
+input SnapshotSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: SnapshotWhereInput
+  AND: [SnapshotSubscriptionWhereInput!]
+}
+
+input SnapshotUpdateDataInput {
+  created_at: DateTime
+  data: Json
+}
+
+input SnapshotUpdateInput {
+  created_at: DateTime
+  data: Json
+}
+
+input SnapshotUpdateManyDataInput {
+  created_at: DateTime
+  data: Json
+}
+
+input SnapshotUpdateManyInput {
+  create: [SnapshotCreateInput!]
+  update: [SnapshotUpdateWithWhereUniqueNestedInput!]
+  upsert: [SnapshotUpsertWithWhereUniqueNestedInput!]
+  delete: [SnapshotWhereUniqueInput!]
+  connect: [SnapshotWhereUniqueInput!]
+  set: [SnapshotWhereUniqueInput!]
+  disconnect: [SnapshotWhereUniqueInput!]
+  deleteMany: [SnapshotScalarWhereInput!]
+  updateMany: [SnapshotUpdateManyWithWhereNestedInput!]
+}
+
+input SnapshotUpdateManyMutationInput {
+  created_at: DateTime
+  data: Json
+}
+
+input SnapshotUpdateManyWithWhereNestedInput {
+  where: SnapshotScalarWhereInput!
+  data: SnapshotUpdateManyDataInput!
+}
+
+input SnapshotUpdateWithWhereUniqueNestedInput {
+  where: SnapshotWhereUniqueInput!
+  data: SnapshotUpdateDataInput!
+}
+
+input SnapshotUpsertWithWhereUniqueNestedInput {
+  where: SnapshotWhereUniqueInput!
+  update: SnapshotUpdateDataInput!
+  create: SnapshotCreateInput!
+}
+
+input SnapshotWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  created_at: DateTime
+  created_at_not: DateTime
+  created_at_in: [DateTime!]
+  created_at_not_in: [DateTime!]
+  created_at_lt: DateTime
+  created_at_lte: DateTime
+  created_at_gt: DateTime
+  created_at_gte: DateTime
+  AND: [SnapshotWhereInput!]
+}
+
+input SnapshotWhereUniqueInput {
+  id: ID
+}
+
 type Subscription {
+  playlist(where: PlaylistSubscriptionWhereInput): PlaylistSubscriptionPayload
+  snapshot(where: SnapshotSubscriptionWhereInput): SnapshotSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   userAuth(where: UserAuthSubscriptionWhereInput): UserAuthSubscriptionPayload
 }
