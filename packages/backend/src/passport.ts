@@ -9,7 +9,7 @@ import {
     VerifyCallback as VerifyCB_GoogleOAuth20,
 } from "passport-google-oauth20";
 import { Request } from "express";
-import { DbStorage, UserNotFoundError } from "./storage";
+import { DbStorage, UserNotFoundError } from "./contracts/DbStorage";
 import {
     Strategy as JWTStrategy,
     ExtractJwt,

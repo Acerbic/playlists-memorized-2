@@ -7,7 +7,7 @@ dotenv.config({
 });
 import { prisma } from "../../generated/prisma-client";
 import { mock_user_profile } from "./_utils";
-import { UserGoogleAuth } from "../storage";
+import { UserGoogleAuth } from "../models/User";
 import { StoragePrisma } from "../storage-prisma";
 
 describe("storage with Prisma #unit", () => {

@@ -10,12 +10,15 @@ import {
     MockStorageUsers,
     MockSingleUserStorage,
 } from "../../__tests__/_mock_storage_user";
-import { UserRecord } from "../../storage";
+import { User } from "../../models/User";
+import { DbStorage } from "../../contracts/DbStorage";
 
 describe("route /start_session", () => {
     let app: Express;
     beforeAll(() => {
-        app = makeApp({ storage: new MockStorageUsers() });
+        app = makeApp({
+            storage: (new MockStorageUsers() as any) as DbStorage,
+        });
     });
     beforeEach(() => {
         app.set("storage", new MockStorageUsers());
@@ -43,7 +46,7 @@ describe("route /start_session", () => {
     it("should return JSON response with a session token, in exchange for a good auth token", async () => {
         const storage = new MockSingleUserStorage();
         app.set("storage", storage);
-        const record: UserRecord = storage._get_user(storage.single_user_id);
+        const record: User = storage._get_user(storage.single_user_id);
 
         const at_signed = await create_temporary_auth_token(record);
         return request(app)

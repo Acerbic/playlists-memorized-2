@@ -6,7 +6,7 @@ import passport from "passport";
 import { Request, Response, Handler } from "express";
 import asyncHandler from "express-async-handler";
 
-import { UserRecord } from "../storage";
+import { User } from "../models/User";
 import { create_temporary_auth_token } from "../session";
 import { NextFunction } from "connect";
 
@@ -53,7 +53,7 @@ export const GoogleAuthHandler = asyncHandler(async function(
 
         // user account procured from authentication by verification
         // function in strategy definition
-        const user: UserRecord | undefined = req.user as UserRecord;
+        const user: User | undefined = req.user as User;
 
         // generate temp token and pass to frontend as query param on
         // redirect

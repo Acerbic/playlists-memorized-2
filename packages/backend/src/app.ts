@@ -28,7 +28,7 @@ import passportConfigure from "./passport";
 
 import routes from "./routes";
 import passport from "passport";
-import { DbStorage } from "./storage";
+import { DbStorage } from "./contracts/DbStorage";
 import { StoragePrisma } from "./storage-prisma";
 
 export interface AppOptions {

@@ -16,7 +16,7 @@ import {
     LoginTokenSession,
     AuthorizedGoogleSession,
 } from "../session";
-import { UserRecord } from "../storage";
+import { User } from "../models/User";
 import { mock_user_profile } from "./_utils";
 
 describe("session manipulation utils #unit #cold", () => {
@@ -40,7 +40,7 @@ describe("session manipulation utils #unit #cold", () => {
     });
 
     it("should be able to generate short-lived tokens", async () => {
-        const user: UserRecord = {
+        const user: User = {
             id: "123abc",
             authentications: {
                 GOOGLE: {
@@ -68,7 +68,7 @@ describe("session manipulation utils #unit #cold", () => {
     });
 
     it("should be able to generate long-term tokens", async () => {
-        const user: UserRecord = {
+        const user: User = {
             id: "123abc",
             authentications: {
                 GOOGLE: {
@@ -83,12 +83,13 @@ describe("session manipulation utils #unit #cold", () => {
                 },
             },
         };
+
         const long_token = await create_user_session_token(user);
         const long_session = (await decode_session_token(
             long_token
         )) as AuthorizedGoogleSession;
-        const timenow: number = new Date().getTime();
 
+        const timenow: number = new Date().getTime();
         expect(long_session.type).toEqual("google");
         expect(long_session.userId).toEqual("123abc");
         expect(long_session.userGoogleId).toEqual(mock_user_profile.id);

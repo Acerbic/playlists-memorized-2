@@ -1,23 +1,22 @@
 import uuid from "uuid/v4";
 
-import { User, UserAuth, AuthType, Maybe } from "../../generated/prisma-client";
+import { AuthType } from "../../generated/prisma-client";
 import {
-    UserRecord,
     DbStorage,
     UserNotFoundError,
-    UserAuthType,
     AllAuthTypes,
-} from "../storage";
+} from "../contracts/DbStorage";
+import { User, UserAuthType } from "../models/User";
 import { mock_user_profile } from "./_utils";
 
-export class MockStorageUsers implements DbStorage {
-    private _storage: Map<string, UserRecord> = new Map();
-    private _storage_by_auth: Map<string, UserRecord> = new Map();
+export class MockStorageUsers implements Partial<DbStorage> {
+    private _storage: Map<string, User> = new Map();
+    private _storage_by_auth: Map<string, User> = new Map();
 
     // sync version of get_user
     _get_user(id: string) {
         if (this._storage.has(id)) {
-            return this._storage.get(id) as UserRecord;
+            return this._storage.get(id) as User;
         }
         throw new UserNotFoundError();
     }
@@ -45,7 +44,7 @@ export class MockStorageUsers implements DbStorage {
 
     _add_new_user(userData: any, auths: Omit<UserAuthType, "id">[]) {
         const user_id = uuid();
-        const user: UserRecord = {
+        const user: User = {
             id: user_id,
             authentications: {},
         };

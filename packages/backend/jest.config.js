@@ -150,6 +150,7 @@ module.exports = {
     testPathIgnorePatterns: [
         "<rootDir>/dist/",
         "<rootDir>/node_modules/",
+        // ignore files starting with "_"
         "<rootDir>/.*/__tests__(/.+)*/_.*\\.ts",
     ],
 

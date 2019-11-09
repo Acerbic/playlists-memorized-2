@@ -8,13 +8,13 @@
 
 import { Handler } from "express";
 import passport from "passport";
-import { UserRecord } from "../storage";
+import { User } from "../models/User";
 import { create_user_session_token } from "../session";
 
 export default <Array<Handler>>[
     passport.authenticate("jwt", { session: false }),
     (req, res, next) => {
-        create_user_session_token(req.user as UserRecord)
+        create_user_session_token(req.user as User)
             .then(token =>
                 res.json({
                     token,

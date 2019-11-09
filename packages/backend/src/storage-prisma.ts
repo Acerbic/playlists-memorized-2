@@ -12,19 +12,18 @@ import { BaseClientOptions } from "prisma-client-lib";
 
 import {
     DbStorage,
-    UserRecord,
-    UserAuthType,
     AllAuthTypes,
     UserNotFoundError,
-} from "./storage";
+} from "./contracts/DbStorage";
+import { User, UserAuthType } from "./models/User";
 
 /**
- * Convert GraphQL fragment into UserRecord object
+ * Convert GraphQL fragment into User object
  */
 type UserFragment = Array<
     Partial<PrismaUser> & { authentications: Array<UserAuthType> }
 >;
-function userFragmentToUserRecord(f: UserFragment): UserRecord {
+function userFragmentToUserRecord(f: UserFragment): User {
     if (f.length < 1) {
         throw new UserNotFoundError();
     }
@@ -35,7 +34,7 @@ function userFragmentToUserRecord(f: UserFragment): UserRecord {
         throw new Error("UserFragment must contain `id` field");
     }
 
-    const result: UserRecord = {
+    const result: User = {
         id: firstRecord.id!,
         authentications: {},
     };
@@ -58,7 +57,7 @@ export class StoragePrisma implements DbStorage {
             typeof options !== "undefined" ? new Prisma(options) : prisma;
     }
 
-    async get_user(userId: string): Promise<UserRecord> {
+    async get_user(userId: string): Promise<User> {
         const fragment = `
             fragment UserWithAuths on User {
                 id
@@ -74,13 +73,12 @@ export class StoragePrisma implements DbStorage {
         return this.prisma
             .users({ where: { id: userId } })
             .$fragment<UserFragment>(fragment)
-            .then(userFragmentToUserRecord);
+            .then(userFragmentToUserRecord, (err: any): any => {
+                console.log(err);
+            });
     }
 
-    async find_user_by_auth(
-        type: AuthType,
-        authId: string
-    ): Promise<UserRecord> {
+    async find_user_by_auth(type: AuthType, authId: string): Promise<User> {
         if (!AllAuthTypes.includes(type)) {
             throw new Error("Unknown authorization type");
         }
@@ -134,7 +132,7 @@ export class StoragePrisma implements DbStorage {
         id,
         authentications,
         ...data
-    }: UserRecord): Promise<void> {
+    }: User): Promise<void> {
         // 1: updating user itself.
         await this.prisma.updateUser({
             where: { id },
@@ -153,5 +151,14 @@ export class StoragePrisma implements DbStorage {
                 });
             })
         ).then(() => {}); // discarding array of results
+    }
+
+    add_new_playlist(
+        user: User,
+        sourceString: string,
+        playlist: import("./models/Playlist").Playlist
+    ): Promise<void> {
+        // TODO:
+        throw new Error("Method not implemented.");
     }
 }

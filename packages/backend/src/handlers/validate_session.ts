@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import passport from "passport";
 
 import { BaseAPIResponse } from "../routes";
-import { UserRecord, UserNotFoundError } from "../storage";
+import { UserNotFoundError } from "../contracts/DbStorage";
 
 export const MALFORMED_SESSION_TOKEN = "MALFORMED_SESSION_TOKEN";
 export const EXPIRED_SESSION_TOKEN = "EXPIRED_SESSION_TOKEN";
