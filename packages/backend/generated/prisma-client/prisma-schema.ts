@@ -96,7 +96,20 @@ input PlaylistCreateInput {
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String!
-  snapshots: SnapshotCreateManyInput
+  snapshots: SnapshotCreateManyWithoutPlaylistInput
+}
+
+input PlaylistCreateOneWithoutSnapshotsInput {
+  create: PlaylistCreateWithoutSnapshotsInput
+  connect: PlaylistWhereUniqueInput
+}
+
+input PlaylistCreateWithoutSnapshotsInput {
+  id: ID
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String!
 }
 
 type PlaylistEdge {
@@ -150,7 +163,7 @@ input PlaylistUpdateInput {
   modified_at: DateTime
   type: PlaylistType
   source_id: String
-  snapshots: SnapshotUpdateManyInput
+  snapshots: SnapshotUpdateManyWithoutPlaylistInput
 }
 
 input PlaylistUpdateManyMutationInput {
@@ -158,6 +171,25 @@ input PlaylistUpdateManyMutationInput {
   modified_at: DateTime
   type: PlaylistType
   source_id: String
+}
+
+input PlaylistUpdateOneRequiredWithoutSnapshotsInput {
+  create: PlaylistCreateWithoutSnapshotsInput
+  update: PlaylistUpdateWithoutSnapshotsDataInput
+  upsert: PlaylistUpsertWithoutSnapshotsInput
+  connect: PlaylistWhereUniqueInput
+}
+
+input PlaylistUpdateWithoutSnapshotsDataInput {
+  created_at: DateTime
+  modified_at: DateTime
+  type: PlaylistType
+  source_id: String
+}
+
+input PlaylistUpsertWithoutSnapshotsInput {
+  update: PlaylistUpdateWithoutSnapshotsDataInput!
+  create: PlaylistCreateWithoutSnapshotsInput!
 }
 
 input PlaylistWhereInput {
@@ -236,6 +268,7 @@ type Query {
 type Snapshot {
   id: ID!
   created_at: DateTime!
+  playlist: Playlist!
   data: Json
 }
 
@@ -248,12 +281,19 @@ type SnapshotConnection {
 input SnapshotCreateInput {
   id: ID
   created_at: DateTime!
+  playlist: PlaylistCreateOneWithoutSnapshotsInput!
   data: Json
 }
 
-input SnapshotCreateManyInput {
-  create: [SnapshotCreateInput!]
+input SnapshotCreateManyWithoutPlaylistInput {
+  create: [SnapshotCreateWithoutPlaylistInput!]
   connect: [SnapshotWhereUniqueInput!]
+}
+
+input SnapshotCreateWithoutPlaylistInput {
+  id: ID
+  created_at: DateTime!
+  data: Json
 }
 
 type SnapshotEdge {
@@ -320,13 +360,9 @@ input SnapshotSubscriptionWhereInput {
   AND: [SnapshotSubscriptionWhereInput!]
 }
 
-input SnapshotUpdateDataInput {
-  created_at: DateTime
-  data: Json
-}
-
 input SnapshotUpdateInput {
   created_at: DateTime
+  playlist: PlaylistUpdateOneRequiredWithoutSnapshotsInput
   data: Json
 }
 
@@ -335,21 +371,21 @@ input SnapshotUpdateManyDataInput {
   data: Json
 }
 
-input SnapshotUpdateManyInput {
-  create: [SnapshotCreateInput!]
-  update: [SnapshotUpdateWithWhereUniqueNestedInput!]
-  upsert: [SnapshotUpsertWithWhereUniqueNestedInput!]
+input SnapshotUpdateManyMutationInput {
+  created_at: DateTime
+  data: Json
+}
+
+input SnapshotUpdateManyWithoutPlaylistInput {
+  create: [SnapshotCreateWithoutPlaylistInput!]
   delete: [SnapshotWhereUniqueInput!]
   connect: [SnapshotWhereUniqueInput!]
   set: [SnapshotWhereUniqueInput!]
   disconnect: [SnapshotWhereUniqueInput!]
+  update: [SnapshotUpdateWithWhereUniqueWithoutPlaylistInput!]
+  upsert: [SnapshotUpsertWithWhereUniqueWithoutPlaylistInput!]
   deleteMany: [SnapshotScalarWhereInput!]
   updateMany: [SnapshotUpdateManyWithWhereNestedInput!]
-}
-
-input SnapshotUpdateManyMutationInput {
-  created_at: DateTime
-  data: Json
 }
 
 input SnapshotUpdateManyWithWhereNestedInput {
@@ -357,15 +393,20 @@ input SnapshotUpdateManyWithWhereNestedInput {
   data: SnapshotUpdateManyDataInput!
 }
 
-input SnapshotUpdateWithWhereUniqueNestedInput {
-  where: SnapshotWhereUniqueInput!
-  data: SnapshotUpdateDataInput!
+input SnapshotUpdateWithoutPlaylistDataInput {
+  created_at: DateTime
+  data: Json
 }
 
-input SnapshotUpsertWithWhereUniqueNestedInput {
+input SnapshotUpdateWithWhereUniqueWithoutPlaylistInput {
   where: SnapshotWhereUniqueInput!
-  update: SnapshotUpdateDataInput!
-  create: SnapshotCreateInput!
+  data: SnapshotUpdateWithoutPlaylistDataInput!
+}
+
+input SnapshotUpsertWithWhereUniqueWithoutPlaylistInput {
+  where: SnapshotWhereUniqueInput!
+  update: SnapshotUpdateWithoutPlaylistDataInput!
+  create: SnapshotCreateWithoutPlaylistInput!
 }
 
 input SnapshotWhereInput {
@@ -391,6 +432,7 @@ input SnapshotWhereInput {
   created_at_lte: DateTime
   created_at_gt: DateTime
   created_at_gte: DateTime
+  playlist: PlaylistWhereInput
   AND: [SnapshotWhereInput!]
 }
 

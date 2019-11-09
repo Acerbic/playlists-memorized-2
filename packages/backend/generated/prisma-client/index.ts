@@ -279,6 +279,7 @@ export interface SnapshotWhereInput {
   created_at_lte?: Maybe<DateTimeInput>;
   created_at_gt?: Maybe<DateTimeInput>;
   created_at_gte?: Maybe<DateTimeInput>;
+  playlist?: Maybe<PlaylistWhereInput>;
   AND?: Maybe<SnapshotWhereInput[] | SnapshotWhereInput>;
 }
 
@@ -409,15 +410,17 @@ export interface PlaylistCreateInput {
   modified_at: DateTimeInput;
   type: PlaylistType;
   source_id: String;
-  snapshots?: Maybe<SnapshotCreateManyInput>;
+  snapshots?: Maybe<SnapshotCreateManyWithoutPlaylistInput>;
 }
 
-export interface SnapshotCreateManyInput {
-  create?: Maybe<SnapshotCreateInput[] | SnapshotCreateInput>;
+export interface SnapshotCreateManyWithoutPlaylistInput {
+  create?: Maybe<
+    SnapshotCreateWithoutPlaylistInput[] | SnapshotCreateWithoutPlaylistInput
+  >;
   connect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
 }
 
-export interface SnapshotCreateInput {
+export interface SnapshotCreateWithoutPlaylistInput {
   id?: Maybe<ID_Input>;
   created_at: DateTimeInput;
   data?: Maybe<Json>;
@@ -428,23 +431,25 @@ export interface PlaylistUpdateInput {
   modified_at?: Maybe<DateTimeInput>;
   type?: Maybe<PlaylistType>;
   source_id?: Maybe<String>;
-  snapshots?: Maybe<SnapshotUpdateManyInput>;
+  snapshots?: Maybe<SnapshotUpdateManyWithoutPlaylistInput>;
 }
 
-export interface SnapshotUpdateManyInput {
-  create?: Maybe<SnapshotCreateInput[] | SnapshotCreateInput>;
-  update?: Maybe<
-    | SnapshotUpdateWithWhereUniqueNestedInput[]
-    | SnapshotUpdateWithWhereUniqueNestedInput
-  >;
-  upsert?: Maybe<
-    | SnapshotUpsertWithWhereUniqueNestedInput[]
-    | SnapshotUpsertWithWhereUniqueNestedInput
+export interface SnapshotUpdateManyWithoutPlaylistInput {
+  create?: Maybe<
+    SnapshotCreateWithoutPlaylistInput[] | SnapshotCreateWithoutPlaylistInput
   >;
   delete?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
   connect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
   set?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
   disconnect?: Maybe<SnapshotWhereUniqueInput[] | SnapshotWhereUniqueInput>;
+  update?: Maybe<
+    | SnapshotUpdateWithWhereUniqueWithoutPlaylistInput[]
+    | SnapshotUpdateWithWhereUniqueWithoutPlaylistInput
+  >;
+  upsert?: Maybe<
+    | SnapshotUpsertWithWhereUniqueWithoutPlaylistInput[]
+    | SnapshotUpsertWithWhereUniqueWithoutPlaylistInput
+  >;
   deleteMany?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
   updateMany?: Maybe<
     | SnapshotUpdateManyWithWhereNestedInput[]
@@ -452,20 +457,20 @@ export interface SnapshotUpdateManyInput {
   >;
 }
 
-export interface SnapshotUpdateWithWhereUniqueNestedInput {
+export interface SnapshotUpdateWithWhereUniqueWithoutPlaylistInput {
   where: SnapshotWhereUniqueInput;
-  data: SnapshotUpdateDataInput;
+  data: SnapshotUpdateWithoutPlaylistDataInput;
 }
 
-export interface SnapshotUpdateDataInput {
+export interface SnapshotUpdateWithoutPlaylistDataInput {
   created_at?: Maybe<DateTimeInput>;
   data?: Maybe<Json>;
 }
 
-export interface SnapshotUpsertWithWhereUniqueNestedInput {
+export interface SnapshotUpsertWithWhereUniqueWithoutPlaylistInput {
   where: SnapshotWhereUniqueInput;
-  update: SnapshotUpdateDataInput;
-  create: SnapshotCreateInput;
+  update: SnapshotUpdateWithoutPlaylistDataInput;
+  create: SnapshotCreateWithoutPlaylistInput;
 }
 
 export interface SnapshotScalarWhereInput {
@@ -513,9 +518,49 @@ export interface PlaylistUpdateManyMutationInput {
   source_id?: Maybe<String>;
 }
 
+export interface SnapshotCreateInput {
+  id?: Maybe<ID_Input>;
+  created_at: DateTimeInput;
+  playlist: PlaylistCreateOneWithoutSnapshotsInput;
+  data?: Maybe<Json>;
+}
+
+export interface PlaylistCreateOneWithoutSnapshotsInput {
+  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
+  connect?: Maybe<PlaylistWhereUniqueInput>;
+}
+
+export interface PlaylistCreateWithoutSnapshotsInput {
+  id?: Maybe<ID_Input>;
+  created_at: DateTimeInput;
+  modified_at: DateTimeInput;
+  type: PlaylistType;
+  source_id: String;
+}
+
 export interface SnapshotUpdateInput {
   created_at?: Maybe<DateTimeInput>;
+  playlist?: Maybe<PlaylistUpdateOneRequiredWithoutSnapshotsInput>;
   data?: Maybe<Json>;
+}
+
+export interface PlaylistUpdateOneRequiredWithoutSnapshotsInput {
+  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
+  update?: Maybe<PlaylistUpdateWithoutSnapshotsDataInput>;
+  upsert?: Maybe<PlaylistUpsertWithoutSnapshotsInput>;
+  connect?: Maybe<PlaylistWhereUniqueInput>;
+}
+
+export interface PlaylistUpdateWithoutSnapshotsDataInput {
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+}
+
+export interface PlaylistUpsertWithoutSnapshotsInput {
+  update: PlaylistUpdateWithoutSnapshotsDataInput;
+  create: PlaylistCreateWithoutSnapshotsInput;
 }
 
 export interface SnapshotUpdateManyMutationInput {
@@ -788,6 +833,7 @@ export interface Snapshot {
 export interface SnapshotPromise extends Promise<Snapshot>, Fragmentable {
   id: () => Promise<ID_Output>;
   created_at: () => Promise<DateTimeOutput>;
+  playlist: <T = PlaylistPromise>() => T;
   data: () => Promise<Json>;
 }
 
@@ -796,6 +842,7 @@ export interface SnapshotSubscription
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
   created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  playlist: <T = PlaylistSubscription>() => T;
   data: () => Promise<AsyncIterator<Json>>;
 }
 
@@ -804,6 +851,7 @@ export interface SnapshotNullablePromise
     Fragmentable {
   id: () => Promise<ID_Output>;
   created_at: () => Promise<DateTimeOutput>;
+  playlist: <T = PlaylistPromise>() => T;
   data: () => Promise<Json>;
 }
 

@@ -30,12 +30,13 @@ type Playlist {
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String! # id in the (type) playlist source system
-  snapshots: [Snapshot!]!
+  snapshots: [Snapshot!]! @relation(link: INLINE)
 }
 
 # A playlist content at certain point in time
 type Snapshot {
   id: ID! @id
   created_at: DateTime!
+  playlist: Playlist!
   data: Json # array of song entries and any other info
 }
