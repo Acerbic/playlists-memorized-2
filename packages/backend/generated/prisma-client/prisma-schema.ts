@@ -449,7 +449,7 @@ type Subscription {
 
 type User {
   id: ID!
-  auths(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserAuth!]
+  authentications(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserAuth!]
 }
 
 type UserAuth {
@@ -469,7 +469,7 @@ type UserAuthConnection {
 input UserAuthCreateInput {
   id: ID
   type: AuthType!
-  user: UserCreateOneWithoutAuthsInput!
+  user: UserCreateOneWithoutAuthenticationsInput!
   authId: String!
   extra: Json
 }
@@ -565,7 +565,7 @@ input UserAuthSubscriptionWhereInput {
 
 input UserAuthUpdateInput {
   type: AuthType
-  user: UserUpdateOneRequiredWithoutAuthsInput
+  user: UserUpdateOneRequiredWithoutAuthenticationsInput
   authId: String
   extra: Json
 }
@@ -665,15 +665,15 @@ type UserConnection {
 
 input UserCreateInput {
   id: ID
-  auths: UserAuthCreateManyWithoutUserInput
+  authentications: UserAuthCreateManyWithoutUserInput
 }
 
-input UserCreateOneWithoutAuthsInput {
-  create: UserCreateWithoutAuthsInput
+input UserCreateOneWithoutAuthenticationsInput {
+  create: UserCreateWithoutAuthenticationsInput
   connect: UserWhereUniqueInput
 }
 
-input UserCreateWithoutAuthsInput {
+input UserCreateWithoutAuthenticationsInput {
   id: ID
 }
 
@@ -708,11 +708,11 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
-  auths: UserAuthUpdateManyWithoutUserInput
+  authentications: UserAuthUpdateManyWithoutUserInput
 }
 
-input UserUpdateOneRequiredWithoutAuthsInput {
-  create: UserCreateWithoutAuthsInput
+input UserUpdateOneRequiredWithoutAuthenticationsInput {
+  create: UserCreateWithoutAuthenticationsInput
   connect: UserWhereUniqueInput
 }
 
@@ -731,7 +731,7 @@ input UserWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  auths_some: UserAuthWhereInput
+  authentications_some: UserAuthWhereInput
   AND: [UserWhereInput!]
 }
 

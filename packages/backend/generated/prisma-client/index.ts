@@ -396,7 +396,7 @@ export interface UserWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
-  auths_some?: Maybe<UserAuthWhereInput>;
+  authentications_some?: Maybe<UserAuthWhereInput>;
   AND?: Maybe<UserWhereInput[] | UserWhereInput>;
 }
 
@@ -570,7 +570,7 @@ export interface SnapshotUpdateManyMutationInput {
 
 export interface UserCreateInput {
   id?: Maybe<ID_Input>;
-  auths?: Maybe<UserAuthCreateManyWithoutUserInput>;
+  authentications?: Maybe<UserAuthCreateManyWithoutUserInput>;
 }
 
 export interface UserAuthCreateManyWithoutUserInput {
@@ -588,7 +588,7 @@ export interface UserAuthCreateWithoutUserInput {
 }
 
 export interface UserUpdateInput {
-  auths?: Maybe<UserAuthUpdateManyWithoutUserInput>;
+  authentications?: Maybe<UserAuthUpdateManyWithoutUserInput>;
 }
 
 export interface UserAuthUpdateManyWithoutUserInput {
@@ -683,29 +683,29 @@ export interface UserAuthUpdateManyDataInput {
 export interface UserAuthCreateInput {
   id?: Maybe<ID_Input>;
   type: AuthType;
-  user: UserCreateOneWithoutAuthsInput;
+  user: UserCreateOneWithoutAuthenticationsInput;
   authId: String;
   extra?: Maybe<Json>;
 }
 
-export interface UserCreateOneWithoutAuthsInput {
-  create?: Maybe<UserCreateWithoutAuthsInput>;
+export interface UserCreateOneWithoutAuthenticationsInput {
+  create?: Maybe<UserCreateWithoutAuthenticationsInput>;
   connect?: Maybe<UserWhereUniqueInput>;
 }
 
-export interface UserCreateWithoutAuthsInput {
+export interface UserCreateWithoutAuthenticationsInput {
   id?: Maybe<ID_Input>;
 }
 
 export interface UserAuthUpdateInput {
   type?: Maybe<AuthType>;
-  user?: Maybe<UserUpdateOneRequiredWithoutAuthsInput>;
+  user?: Maybe<UserUpdateOneRequiredWithoutAuthenticationsInput>;
   authId?: Maybe<String>;
   extra?: Maybe<Json>;
 }
 
-export interface UserUpdateOneRequiredWithoutAuthsInput {
-  create?: Maybe<UserCreateWithoutAuthsInput>;
+export interface UserUpdateOneRequiredWithoutAuthenticationsInput {
+  create?: Maybe<UserCreateWithoutAuthenticationsInput>;
   connect?: Maybe<UserWhereUniqueInput>;
 }
 
@@ -996,7 +996,7 @@ export interface User {
 
 export interface UserPromise extends Promise<User>, Fragmentable {
   id: () => Promise<ID_Output>;
-  auths: <T = FragmentableArray<UserAuth>>(args?: {
+  authentications: <T = FragmentableArray<UserAuth>>(args?: {
     where?: UserAuthWhereInput;
     orderBy?: UserAuthOrderByInput;
     skip?: Int;
@@ -1011,7 +1011,7 @@ export interface UserSubscription
   extends Promise<AsyncIterator<User>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  auths: <T = Promise<AsyncIterator<UserAuthSubscription>>>(args?: {
+  authentications: <T = Promise<AsyncIterator<UserAuthSubscription>>>(args?: {
     where?: UserAuthWhereInput;
     orderBy?: UserAuthOrderByInput;
     skip?: Int;
@@ -1026,7 +1026,7 @@ export interface UserNullablePromise
   extends Promise<User | null>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  auths: <T = FragmentableArray<UserAuth>>(args?: {
+  authentications: <T = FragmentableArray<UserAuth>>(args?: {
     where?: UserAuthWhereInput;
     orderBy?: UserAuthOrderByInput;
     skip?: Int;

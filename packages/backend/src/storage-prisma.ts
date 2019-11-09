@@ -2,7 +2,12 @@
  * Prisma implementation of DbStorage contract.
  */
 
-import { prisma, User, Prisma, AuthType } from "../generated/prisma-client";
+import {
+    prisma,
+    User as PrismaUser,
+    Prisma,
+    AuthType,
+} from "../generated/prisma-client";
 import { BaseClientOptions } from "prisma-client-lib";
 
 import {
@@ -16,7 +21,9 @@ import {
 /**
  * Convert GraphQL fragment into UserRecord object
  */
-type UserFragment = Array<Partial<User> & { auths: Array<UserAuthType> }>;
+type UserFragment = Array<
+    Partial<PrismaUser> & { authentications: Array<UserAuthType> }
+>;
 function userFragmentToUserRecord(f: UserFragment): UserRecord {
     if (f.length < 1) {
         throw new UserNotFoundError();
@@ -33,7 +40,7 @@ function userFragmentToUserRecord(f: UserFragment): UserRecord {
         authentications: {},
     };
 
-    firstRecord.auths.forEach(auth => {
+    firstRecord.authentications.forEach(auth => {
         if (AllAuthTypes.includes(auth.type!)) {
             result.authentications[auth.type!] = auth;
         }
@@ -55,7 +62,7 @@ export class StoragePrisma implements DbStorage {
         const fragment = `
             fragment UserWithAuths on User {
                 id
-                auths {
+                authentications {
                     id
                     type
                     authId
@@ -83,7 +90,7 @@ export class StoragePrisma implements DbStorage {
                 id
                 user {
                     id
-                    auths {
+                    authentications {
                         id
                         type
                         authId
@@ -100,7 +107,7 @@ export class StoragePrisma implements DbStorage {
     }
 
     async add_new_user(
-        userData: Omit<User, "id">,
+        userData: Omit<PrismaUser, "id">,
         authentications: Omit<UserAuthType, "id">[]
     ): Promise<string> {
         const authenticationsFiltered = authentications.filter(auth =>
@@ -116,7 +123,7 @@ export class StoragePrisma implements DbStorage {
         return this.prisma
             .createUser({
                 ...userData,
-                auths: { create: authenticationsFiltered },
+                authentications: { create: authenticationsFiltered },
             })
             .then(user => {
                 return user.id;

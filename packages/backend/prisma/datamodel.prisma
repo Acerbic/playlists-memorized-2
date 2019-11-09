@@ -6,7 +6,7 @@ enum AuthType {
 # Basic user of the system
 type User {
   id: ID! @id
-  auths: [UserAuth!]! @relation(link: INLINE)
+  authentications: [UserAuth!]! @relation(link: INLINE)
 }
 
 # Authentications of the user (via Google, Facebook, etc.)
