@@ -7,6 +7,7 @@ import {
     User as PrismaUser,
     Prisma,
     AuthType,
+    PlaylistType,
 } from "../generated/prisma-client";
 import { BaseClientOptions } from "prisma-client-lib";
 
@@ -16,6 +17,8 @@ import {
     UserNotFoundError,
 } from "./contracts/DbStorage";
 import { User, UserAuthType } from "./models/User";
+import { Playlist } from "./models/Playlist";
+import { Snapshot, Track } from "./models/Snapshot";
 
 /**
  * Convert GraphQL fragment into User object
@@ -64,7 +67,7 @@ export class StoragePrisma implements DbStorage {
                 authentications {
                     id
                     type
-                    authId
+                    auth_id
                     extra
                 }
             }
@@ -73,9 +76,7 @@ export class StoragePrisma implements DbStorage {
         return this.prisma
             .users({ where: { id: userId } })
             .$fragment<UserFragment>(fragment)
-            .then(userFragmentToUserRecord, (err: any): any => {
-                console.log(err);
-            });
+            .then(userFragmentToUserRecord);
     }
 
     async find_user_by_auth(type: AuthType, authId: string): Promise<User> {
@@ -91,7 +92,7 @@ export class StoragePrisma implements DbStorage {
                     authentications {
                         id
                         type
-                        authId
+                        auth_id
                         extra
                     }
                 }
@@ -99,7 +100,7 @@ export class StoragePrisma implements DbStorage {
         `;
 
         return this.prisma
-            .userAuths({ where: { authId, type }, first: 1 })
+            .userAuths({ where: { auth_id: authId, type }, first: 1 })
             .$fragment<Array<{ user: any }>>(fragment)
             .then(fr_result => userFragmentToUserRecord([fr_result[0].user]));
     }
@@ -155,9 +156,20 @@ export class StoragePrisma implements DbStorage {
 
     add_new_playlist(
         user: User,
-        sourceString: string,
-        playlist: import("./models/Playlist").Playlist
-    ): Promise<void> {
+        type: PlaylistType,
+        sourceId: string,
+        title: string,
+        tracks: Track[]
+    ): Promise<string> {
+        // TODO:
+        throw new Error("Method not implemented.");
+    }
+
+    get_playlist(playlistId: string): Promise<Playlist> {
+        // TODO:
+        throw new Error("Method not implemented.");
+    }
+    get_snapshot(snapshotId: string): Promise<Snapshot> {
         // TODO:
         throw new Error("Method not implemented.");
     }

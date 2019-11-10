@@ -116,7 +116,7 @@ export async function create_user_session_token(user: User): Promise<string> {
         type: "google",
         userId: user.id!,
         profile: user.authentications.GOOGLE!.extra.profile,
-        userGoogleId: user.authentications.GOOGLE!.authId,
+        userGoogleId: user.authentications.GOOGLE!.auth_id,
     };
     return sign_session(user_session);
 }

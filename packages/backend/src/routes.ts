@@ -73,7 +73,10 @@ export default function(app: Express, opts: AppOptions) {
 
     const jwt_router = Router();
     jwt_router.use(passport.authenticate("jwt", { session: false }));
-
     jwt_router.post("/pl/create");
     app.use(jwt_router);
+
+    // TODO: universal error handling response for APIError class of errors
+    // should intercept APIError and return ErrorAPIResponse with 4xx code
+    // app.use(/** */)
 }

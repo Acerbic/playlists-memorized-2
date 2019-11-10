@@ -23,7 +23,7 @@ describe("storage with Prisma #unit", () => {
         const storage = new StoragePrisma();
         const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
-            authId: mock_user_profile.id,
+            auth_id: mock_user_profile.id,
             extra: {
                 accessToken: "mock access token",
                 refreshToken: "mock refresh token",
@@ -41,7 +41,7 @@ describe("storage with Prisma #unit", () => {
         const storage = new StoragePrisma();
         const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
-            authId: mock_user_profile.id,
+            auth_id: mock_user_profile.id,
             extra: {
                 accessToken: "mock access token",
                 refreshToken: "mock refresh token",
@@ -55,7 +55,7 @@ describe("storage with Prisma #unit", () => {
         expect(retrieved_user).not.toBeUndefined();
         expect(retrieved_user!.id).toEqual(user_id);
         expect(retrieved_user!.authentications).toHaveProperty("GOOGLE");
-        expect(retrieved_user!.authentications.GOOGLE!.authId).toEqual(
+        expect(retrieved_user!.authentications.GOOGLE!.auth_id).toEqual(
             mock_user_profile.id
         );
     });
@@ -64,7 +64,7 @@ describe("storage with Prisma #unit", () => {
         const storage = new StoragePrisma();
         const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
-            authId: mock_user_profile.id,
+            auth_id: mock_user_profile.id,
             extra: {
                 accessToken: "mock access token",
                 refreshToken: "mock refresh token",
@@ -91,7 +91,7 @@ describe("storage with Prisma #unit", () => {
         const storage = new StoragePrisma();
         const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
-            authId: mock_user_profile.id,
+            auth_id: mock_user_profile.id,
             extra: {
                 accessToken: "mock access token",
                 refreshToken: "mock refresh token",
@@ -108,8 +108,8 @@ describe("storage with Prisma #unit", () => {
         expect(changed_user.authentications.GOOGLE!.extra.accessToken).toEqual(
             "changed access token"
         );
-        expect(changed_user.authentications.GOOGLE!.authId).toEqual(
-            user.authentications.GOOGLE!.authId
+        expect(changed_user.authentications.GOOGLE!.auth_id).toEqual(
+            user.authentications.GOOGLE!.auth_id
         );
     });
 
@@ -117,7 +117,7 @@ describe("storage with Prisma #unit", () => {
         const storage = new StoragePrisma();
         const userGoogleAuth: Omit<UserGoogleAuth, "id"> = {
             type: "GOOGLE",
-            authId: mock_user_profile.id,
+            auth_id: mock_user_profile.id,
             extra: {
                 accessToken: "mock access token",
                 refreshToken: "mock refresh token",
@@ -126,14 +126,14 @@ describe("storage with Prisma #unit", () => {
         };
         const user_id = await storage.add_new_user({}, [userGoogleAuth]);
         const user = await storage.get_user(user_id);
-        user.authentications.GOOGLE!.authId = mock_user_profile.id + "+";
+        user.authentications.GOOGLE!.auth_id = mock_user_profile.id + "+";
         user.authentications.GOOGLE!.extra.profile.id =
             mock_user_profile.id + "+";
 
         await storage.update_user_record(user);
 
         const changed_user = await storage.get_user(user_id);
-        expect(changed_user.authentications.GOOGLE!.authId).toEqual(
+        expect(changed_user.authentications.GOOGLE!.auth_id).toEqual(
             mock_user_profile.id + "+"
         );
         expect(changed_user.authentications.GOOGLE!.extra.profile.id).toEqual(

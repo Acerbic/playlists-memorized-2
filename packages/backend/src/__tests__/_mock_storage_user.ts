@@ -30,7 +30,7 @@ export class MockStorageUsers implements Partial<DbStorage> {
         if (
             !u ||
             !u.authentications[authType] ||
-            u.authentications[authType]!.authId !== authId
+            u.authentications[authType]!.auth_id !== authId
         ) {
             throw new UserNotFoundError();
         }
@@ -79,7 +79,7 @@ export class MockSingleUserStorage extends MockStorageUsers {
         this.single_user_id = this._add_new_user({}, [
             {
                 type: "GOOGLE",
-                authId: mock_user_profile.id,
+                auth_id: mock_user_profile.id,
                 extra: {
                     accessToken: "mock_access_token",
                     refreshToken: "mock_refresh_token",

@@ -1,5 +1,8 @@
 import { PlaylistType } from "../generated/prisma-client";
-import { PlaylistSource } from "./contracts/PlaylistSource";
+import {
+    PlaylistSource,
+    PlaylistSourceFetchResult,
+} from "./contracts/PlaylistSource";
 import { Playlist } from "./models/Playlist";
 
 export default class PlaylistSourceYoutube implements PlaylistSource {
@@ -10,7 +13,7 @@ export default class PlaylistSourceYoutube implements PlaylistSource {
     async confirm(source: string): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    async fetch(source: string): Promise<Playlist> {
+    async fetch(source: string): Promise<PlaylistSourceFetchResult> {
         throw new Error("Method not implemented.");
     }
 }

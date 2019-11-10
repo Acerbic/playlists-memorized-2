@@ -1,5 +1,11 @@
 import { PlaylistType } from "../../generated/prisma-client";
-import { Playlist } from "../models/Playlist";
+import { Track } from "../models/Snapshot";
+
+export interface PlaylistSourceFetchResult {
+    source_id: string;
+    title: string;
+    tracks: Track[];
+}
 
 /**
  * Adapter of a playlist source - Youtube, Spotify, etc.
@@ -18,5 +24,5 @@ export interface PlaylistSource {
 
     // TODO: some standardized presentation of playlist or a snapshop, before
     // they are actually stored in the system
-    fetch(sourceString: string): Promise<any>;
+    fetch(sourceString: string): Promise<PlaylistSourceFetchResult>;
 }

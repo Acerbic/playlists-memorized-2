@@ -46,7 +46,7 @@ describe("session manipulation utils #unit #cold", () => {
                 GOOGLE: {
                     id: "345dsa",
                     type: "GOOGLE",
-                    authId: mock_user_profile.id,
+                    auth_id: mock_user_profile.id,
                     extra: {
                         accessToken: "mock_access_token",
                         refreshToken: "mock_refresh_token",
@@ -74,7 +74,7 @@ describe("session manipulation utils #unit #cold", () => {
                 GOOGLE: {
                     id: "345dsa",
                     type: "GOOGLE",
-                    authId: mock_user_profile.id,
+                    auth_id: mock_user_profile.id,
                     extra: {
                         accessToken: "mock_access_token",
                         refreshToken: "mock_refresh_token",

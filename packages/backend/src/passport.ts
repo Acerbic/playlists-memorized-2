@@ -55,7 +55,7 @@ export function verifyGoogleOAuth20(
                         .add_new_user({}, [
                             {
                                 type: "GOOGLE",
-                                authId: profile.id,
+                                auth_id: profile.id,
                                 extra: {
                                     accessToken,
                                     refreshToken,

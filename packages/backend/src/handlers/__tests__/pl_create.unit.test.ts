@@ -10,6 +10,10 @@ import { APIError } from "../../routes";
 import { PlaylistController } from "../../contracts/PlaylistController";
 import { PlaylistSource } from "../../contracts/PlaylistSource";
 import { Playlist } from "../../models/Playlist";
+import { User } from "../../models/User";
+import { mock_user } from "../../__tests__/_utils";
+import { DbStorage } from "../../contracts/DbStorage";
+import Snapshot from "../../models/Snapshot";
 
 describe("handler for route /pl/create #unit #cold", () => {
     it("should fail if no playlist url is provided", async () => {
@@ -102,28 +106,32 @@ describe("handler for route /pl/create #unit #cold", () => {
         const error = next.mock.calls[0][0];
         expect(error).not.toBeInstanceOf(APIError);
     });
-    // it("should be able to create entry for given playlist url", async () => {
-    //     const req = new Request("/pl/create", { method: "POST" });
-    //     (req as any).body = <PlaylistCreateRequest>{
-    //         url: "https://google.com",
-    //     };
-    //     req.app.set("pl-controller", new MockPlaylistController_MockSource());
-    //     const res = new Response();
-    //     const next = jest.fn();
 
-    //     await route(req as any, res as any, next);
+    it("should be able to create entry for given playlist url", async () => {
+        const req = new Request("/pl/create", { method: "POST" });
+        (req as any).body = <PlaylistCreateRequest>{
+            url:
+                "https://www.youtube.com/playlist?list=PLcgPzkoC6_LrM_GaWsoRSuL4It2SDpjWk",
+        };
+        (req as any).user = mock_user;
+        req.app.set("pl-controller", new MockPlaylistController_MockSource());
+        req.app.set("storage", new MockDbStorage_Playlist());
+        const res = new Response();
+        const next = jest.fn();
 
-    //     expect(next).not.toBeCalled();
-    //     expect(res.end).not.toBeCalled();
-    //     expect(res.json).toBeCalledTimes(1);
-    //     const expected_body: PlaylistCreateResponse = {
-    //         success: true,
-    //         playlist: {
-    //             data: "playlist data",
-    //         },
-    //     };
-    //     expect(res.json.mock.calls[0][0]).toStrictEqual(expected_body);
-    // });
+        await route(req as any, res as any, next);
+
+        expect(next).not.toBeCalled();
+        expect(res.end).not.toBeCalled();
+        expect(res.json).toBeCalledTimes(1);
+        const res_body: PlaylistCreateResponse = res.json.mock.calls[0][0];
+        expect(res_body).toHaveProperty("success", true);
+        expect(res_body).toHaveProperty("playlist");
+
+        expect(res_body.playlist.id).not.toBeFalsy();
+        expect(res_body.playlist.snapshotIds.length).toEqual(1);
+        expect(res_body.snapshot.id).toEqual(res_body.playlist.snapshotIds[0]);
+    });
 });
 
 class MockPlaylistSource implements PlaylistSource {
@@ -139,7 +147,7 @@ class MockPlaylistSource implements PlaylistSource {
         }
     );
     fetch: PlaylistSource["fetch"] = jest.fn(
-        async (sourceString: string): Promise<Playlist> => {
+        async (sourceString: string): Promise<any> => {
             throw new Error("Method not implemented.");
         }
     );
@@ -198,9 +206,49 @@ class MockPlaylistController_MockSource implements PlaylistController {
                 detect = jest.fn(async () => "id-code");
                 confirm = jest.fn(async () => true);
                 fetch = jest.fn(async () => {
-                    return { data: "snapshot data" } as any;
+                    return {
+                        source_id: "id-code",
+                        title: "Playlist title",
+                        tracks: [],
+                    };
                 });
             })();
         }
+    );
+}
+
+class MockDbStorage_Playlist implements Partial<DbStorage> {
+    mock_snapshot: Snapshot = {
+        id: "mock-id-snapshot",
+        created_at: "12312312",
+        title: "Playlist Name",
+        playlistId: "mock-id-playlist",
+        data: [
+            { urlOrId: "track1-id", title: "track1 name", length: 300 },
+            { urlOrId: "track2-id", title: "track2 name", length: 300 },
+            { urlOrId: "track3-id", title: "track3 name", length: 300 },
+        ],
+    };
+    mock_playlist: Playlist = {
+        id: "mock-id-playlist",
+        created_at: "12312312",
+        modified_at: "12312312",
+        title: "Playlist Name",
+        source_id: "youtube-playlist-id",
+        type: "YOUTUBE",
+        snapshotIds: ["mock-id-snapshot"],
+    };
+
+    add_new_playlist: jest.MockedFunction<
+        DbStorage["add_new_playlist"]
+    > = jest.fn(
+        async (user, type, sourceId, title, tracks): Promise<string> =>
+            "mock-id-snapshot"
+    );
+    get_snapshot: jest.MockedFunction<DbStorage["get_snapshot"]> = jest.fn(
+        async (snapshotId): Promise<Snapshot> => this.mock_snapshot
+    );
+    get_playlist: jest.MockedFunction<DbStorage["get_playlist"]> = jest.fn(
+        async (playlistId): Promise<Playlist> => this.mock_playlist
     );
 }
