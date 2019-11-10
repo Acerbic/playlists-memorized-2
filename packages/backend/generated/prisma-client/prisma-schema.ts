@@ -77,11 +77,13 @@ type PageInfo {
 
 type Playlist {
   id: ID!
+  title: String
   created_at: DateTime!
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String!
   snapshots(where: SnapshotWhereInput, orderBy: SnapshotOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Snapshot!]
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User!]
 }
 
 type PlaylistConnection {
@@ -92,11 +94,18 @@ type PlaylistConnection {
 
 input PlaylistCreateInput {
   id: ID
+  title: String
   created_at: DateTime!
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String!
   snapshots: SnapshotCreateManyWithoutPlaylistInput
+  users: UserCreateManyWithoutPlaylistsInput
+}
+
+input PlaylistCreateManyWithoutUsersInput {
+  create: [PlaylistCreateWithoutUsersInput!]
+  connect: [PlaylistWhereUniqueInput!]
 }
 
 input PlaylistCreateOneWithoutSnapshotsInput {
@@ -106,10 +115,22 @@ input PlaylistCreateOneWithoutSnapshotsInput {
 
 input PlaylistCreateWithoutSnapshotsInput {
   id: ID
+  title: String
   created_at: DateTime!
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String!
+  users: UserCreateManyWithoutPlaylistsInput
+}
+
+input PlaylistCreateWithoutUsersInput {
+  id: ID
+  title: String
+  created_at: DateTime!
+  modified_at: DateTime!
+  type: PlaylistType!
+  source_id: String!
+  snapshots: SnapshotCreateManyWithoutPlaylistInput
 }
 
 type PlaylistEdge {
@@ -120,6 +141,8 @@ type PlaylistEdge {
 enum PlaylistOrderByInput {
   id_ASC
   id_DESC
+  title_ASC
+  title_DESC
   created_at_ASC
   created_at_DESC
   modified_at_ASC
@@ -132,10 +155,79 @@ enum PlaylistOrderByInput {
 
 type PlaylistPreviousValues {
   id: ID!
+  title: String
   created_at: DateTime!
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String!
+}
+
+input PlaylistScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  created_at: DateTime
+  created_at_not: DateTime
+  created_at_in: [DateTime!]
+  created_at_not_in: [DateTime!]
+  created_at_lt: DateTime
+  created_at_lte: DateTime
+  created_at_gt: DateTime
+  created_at_gte: DateTime
+  modified_at: DateTime
+  modified_at_not: DateTime
+  modified_at_in: [DateTime!]
+  modified_at_not_in: [DateTime!]
+  modified_at_lt: DateTime
+  modified_at_lte: DateTime
+  modified_at_gt: DateTime
+  modified_at_gte: DateTime
+  type: PlaylistType
+  type_not: PlaylistType
+  type_in: [PlaylistType!]
+  type_not_in: [PlaylistType!]
+  source_id: String
+  source_id_not: String
+  source_id_in: [String!]
+  source_id_not_in: [String!]
+  source_id_lt: String
+  source_id_lte: String
+  source_id_gt: String
+  source_id_gte: String
+  source_id_contains: String
+  source_id_not_contains: String
+  source_id_starts_with: String
+  source_id_not_starts_with: String
+  source_id_ends_with: String
+  source_id_not_ends_with: String
+  AND: [PlaylistScalarWhereInput!]
+  OR: [PlaylistScalarWhereInput!]
+  NOT: [PlaylistScalarWhereInput!]
 }
 
 type PlaylistSubscriptionPayload {
@@ -159,18 +251,46 @@ enum PlaylistType {
 }
 
 input PlaylistUpdateInput {
+  title: String
   created_at: DateTime
   modified_at: DateTime
   type: PlaylistType
   source_id: String
   snapshots: SnapshotUpdateManyWithoutPlaylistInput
+  users: UserUpdateManyWithoutPlaylistsInput
 }
 
-input PlaylistUpdateManyMutationInput {
+input PlaylistUpdateManyDataInput {
+  title: String
   created_at: DateTime
   modified_at: DateTime
   type: PlaylistType
   source_id: String
+}
+
+input PlaylistUpdateManyMutationInput {
+  title: String
+  created_at: DateTime
+  modified_at: DateTime
+  type: PlaylistType
+  source_id: String
+}
+
+input PlaylistUpdateManyWithoutUsersInput {
+  create: [PlaylistCreateWithoutUsersInput!]
+  delete: [PlaylistWhereUniqueInput!]
+  connect: [PlaylistWhereUniqueInput!]
+  set: [PlaylistWhereUniqueInput!]
+  disconnect: [PlaylistWhereUniqueInput!]
+  update: [PlaylistUpdateWithWhereUniqueWithoutUsersInput!]
+  upsert: [PlaylistUpsertWithWhereUniqueWithoutUsersInput!]
+  deleteMany: [PlaylistScalarWhereInput!]
+  updateMany: [PlaylistUpdateManyWithWhereNestedInput!]
+}
+
+input PlaylistUpdateManyWithWhereNestedInput {
+  where: PlaylistScalarWhereInput!
+  data: PlaylistUpdateManyDataInput!
 }
 
 input PlaylistUpdateOneRequiredWithoutSnapshotsInput {
@@ -181,15 +301,37 @@ input PlaylistUpdateOneRequiredWithoutSnapshotsInput {
 }
 
 input PlaylistUpdateWithoutSnapshotsDataInput {
+  title: String
   created_at: DateTime
   modified_at: DateTime
   type: PlaylistType
   source_id: String
+  users: UserUpdateManyWithoutPlaylistsInput
+}
+
+input PlaylistUpdateWithoutUsersDataInput {
+  title: String
+  created_at: DateTime
+  modified_at: DateTime
+  type: PlaylistType
+  source_id: String
+  snapshots: SnapshotUpdateManyWithoutPlaylistInput
+}
+
+input PlaylistUpdateWithWhereUniqueWithoutUsersInput {
+  where: PlaylistWhereUniqueInput!
+  data: PlaylistUpdateWithoutUsersDataInput!
 }
 
 input PlaylistUpsertWithoutSnapshotsInput {
   update: PlaylistUpdateWithoutSnapshotsDataInput!
   create: PlaylistCreateWithoutSnapshotsInput!
+}
+
+input PlaylistUpsertWithWhereUniqueWithoutUsersInput {
+  where: PlaylistWhereUniqueInput!
+  update: PlaylistUpdateWithoutUsersDataInput!
+  create: PlaylistCreateWithoutUsersInput!
 }
 
 input PlaylistWhereInput {
@@ -207,6 +349,20 @@ input PlaylistWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
   created_at: DateTime
   created_at_not: DateTime
   created_at_in: [DateTime!]
@@ -242,6 +398,7 @@ input PlaylistWhereInput {
   source_id_ends_with: String
   source_id_not_ends_with: String
   snapshots_some: SnapshotWhereInput
+  users_some: UserWhereInput
   AND: [PlaylistWhereInput!]
 }
 
@@ -269,6 +426,7 @@ type Snapshot {
   id: ID!
   created_at: DateTime!
   playlist: Playlist!
+  title: String
   data: Json
 }
 
@@ -282,6 +440,7 @@ input SnapshotCreateInput {
   id: ID
   created_at: DateTime!
   playlist: PlaylistCreateOneWithoutSnapshotsInput!
+  title: String
   data: Json
 }
 
@@ -293,6 +452,7 @@ input SnapshotCreateManyWithoutPlaylistInput {
 input SnapshotCreateWithoutPlaylistInput {
   id: ID
   created_at: DateTime!
+  title: String
   data: Json
 }
 
@@ -306,6 +466,8 @@ enum SnapshotOrderByInput {
   id_DESC
   created_at_ASC
   created_at_DESC
+  title_ASC
+  title_DESC
   data_ASC
   data_DESC
 }
@@ -313,6 +475,7 @@ enum SnapshotOrderByInput {
 type SnapshotPreviousValues {
   id: ID!
   created_at: DateTime!
+  title: String
   data: Json
 }
 
@@ -339,6 +502,20 @@ input SnapshotScalarWhereInput {
   created_at_lte: DateTime
   created_at_gt: DateTime
   created_at_gte: DateTime
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
   AND: [SnapshotScalarWhereInput!]
   OR: [SnapshotScalarWhereInput!]
   NOT: [SnapshotScalarWhereInput!]
@@ -363,16 +540,19 @@ input SnapshotSubscriptionWhereInput {
 input SnapshotUpdateInput {
   created_at: DateTime
   playlist: PlaylistUpdateOneRequiredWithoutSnapshotsInput
+  title: String
   data: Json
 }
 
 input SnapshotUpdateManyDataInput {
   created_at: DateTime
+  title: String
   data: Json
 }
 
 input SnapshotUpdateManyMutationInput {
   created_at: DateTime
+  title: String
   data: Json
 }
 
@@ -395,6 +575,7 @@ input SnapshotUpdateManyWithWhereNestedInput {
 
 input SnapshotUpdateWithoutPlaylistDataInput {
   created_at: DateTime
+  title: String
   data: Json
 }
 
@@ -433,6 +614,20 @@ input SnapshotWhereInput {
   created_at_gt: DateTime
   created_at_gte: DateTime
   playlist: PlaylistWhereInput
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
   AND: [SnapshotWhereInput!]
 }
 
@@ -450,13 +645,14 @@ type Subscription {
 type User {
   id: ID!
   authentications(where: UserAuthWhereInput, orderBy: UserAuthOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserAuth!]
+  playlists(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Playlist!]
 }
 
 type UserAuth {
   id: ID!
   type: AuthType!
   user: User!
-  authId: String!
+  auth_id: String!
   extra: Json
 }
 
@@ -470,7 +666,7 @@ input UserAuthCreateInput {
   id: ID
   type: AuthType!
   user: UserCreateOneWithoutAuthenticationsInput!
-  authId: String!
+  auth_id: String!
   extra: Json
 }
 
@@ -482,7 +678,7 @@ input UserAuthCreateManyWithoutUserInput {
 input UserAuthCreateWithoutUserInput {
   id: ID
   type: AuthType!
-  authId: String!
+  auth_id: String!
   extra: Json
 }
 
@@ -496,8 +692,8 @@ enum UserAuthOrderByInput {
   id_DESC
   type_ASC
   type_DESC
-  authId_ASC
-  authId_DESC
+  auth_id_ASC
+  auth_id_DESC
   extra_ASC
   extra_DESC
 }
@@ -505,7 +701,7 @@ enum UserAuthOrderByInput {
 type UserAuthPreviousValues {
   id: ID!
   type: AuthType!
-  authId: String!
+  auth_id: String!
   extra: Json
 }
 
@@ -528,20 +724,20 @@ input UserAuthScalarWhereInput {
   type_not: AuthType
   type_in: [AuthType!]
   type_not_in: [AuthType!]
-  authId: String
-  authId_not: String
-  authId_in: [String!]
-  authId_not_in: [String!]
-  authId_lt: String
-  authId_lte: String
-  authId_gt: String
-  authId_gte: String
-  authId_contains: String
-  authId_not_contains: String
-  authId_starts_with: String
-  authId_not_starts_with: String
-  authId_ends_with: String
-  authId_not_ends_with: String
+  auth_id: String
+  auth_id_not: String
+  auth_id_in: [String!]
+  auth_id_not_in: [String!]
+  auth_id_lt: String
+  auth_id_lte: String
+  auth_id_gt: String
+  auth_id_gte: String
+  auth_id_contains: String
+  auth_id_not_contains: String
+  auth_id_starts_with: String
+  auth_id_not_starts_with: String
+  auth_id_ends_with: String
+  auth_id_not_ends_with: String
   AND: [UserAuthScalarWhereInput!]
   OR: [UserAuthScalarWhereInput!]
   NOT: [UserAuthScalarWhereInput!]
@@ -566,19 +762,19 @@ input UserAuthSubscriptionWhereInput {
 input UserAuthUpdateInput {
   type: AuthType
   user: UserUpdateOneRequiredWithoutAuthenticationsInput
-  authId: String
+  auth_id: String
   extra: Json
 }
 
 input UserAuthUpdateManyDataInput {
   type: AuthType
-  authId: String
+  auth_id: String
   extra: Json
 }
 
 input UserAuthUpdateManyMutationInput {
   type: AuthType
-  authId: String
+  auth_id: String
   extra: Json
 }
 
@@ -601,7 +797,7 @@ input UserAuthUpdateManyWithWhereNestedInput {
 
 input UserAuthUpdateWithoutUserDataInput {
   type: AuthType
-  authId: String
+  auth_id: String
   extra: Json
 }
 
@@ -636,20 +832,20 @@ input UserAuthWhereInput {
   type_in: [AuthType!]
   type_not_in: [AuthType!]
   user: UserWhereInput
-  authId: String
-  authId_not: String
-  authId_in: [String!]
-  authId_not_in: [String!]
-  authId_lt: String
-  authId_lte: String
-  authId_gt: String
-  authId_gte: String
-  authId_contains: String
-  authId_not_contains: String
-  authId_starts_with: String
-  authId_not_starts_with: String
-  authId_ends_with: String
-  authId_not_ends_with: String
+  auth_id: String
+  auth_id_not: String
+  auth_id_in: [String!]
+  auth_id_not_in: [String!]
+  auth_id_lt: String
+  auth_id_lte: String
+  auth_id_gt: String
+  auth_id_gte: String
+  auth_id_contains: String
+  auth_id_not_contains: String
+  auth_id_starts_with: String
+  auth_id_not_starts_with: String
+  auth_id_ends_with: String
+  auth_id_not_ends_with: String
   AND: [UserAuthWhereInput!]
 }
 
@@ -666,6 +862,12 @@ type UserConnection {
 input UserCreateInput {
   id: ID
   authentications: UserAuthCreateManyWithoutUserInput
+  playlists: PlaylistCreateManyWithoutUsersInput
+}
+
+input UserCreateManyWithoutPlaylistsInput {
+  create: [UserCreateWithoutPlaylistsInput!]
+  connect: [UserWhereUniqueInput!]
 }
 
 input UserCreateOneWithoutAuthenticationsInput {
@@ -675,6 +877,12 @@ input UserCreateOneWithoutAuthenticationsInput {
 
 input UserCreateWithoutAuthenticationsInput {
   id: ID
+  playlists: PlaylistCreateManyWithoutUsersInput
+}
+
+input UserCreateWithoutPlaylistsInput {
+  id: ID
+  authentications: UserAuthCreateManyWithoutUserInput
 }
 
 type UserEdge {
@@ -689,6 +897,26 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
+}
+
+input UserScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  AND: [UserScalarWhereInput!]
+  OR: [UserScalarWhereInput!]
+  NOT: [UserScalarWhereInput!]
 }
 
 type UserSubscriptionPayload {
@@ -709,11 +937,49 @@ input UserSubscriptionWhereInput {
 
 input UserUpdateInput {
   authentications: UserAuthUpdateManyWithoutUserInput
+  playlists: PlaylistUpdateManyWithoutUsersInput
+}
+
+input UserUpdateManyWithoutPlaylistsInput {
+  create: [UserCreateWithoutPlaylistsInput!]
+  delete: [UserWhereUniqueInput!]
+  connect: [UserWhereUniqueInput!]
+  set: [UserWhereUniqueInput!]
+  disconnect: [UserWhereUniqueInput!]
+  update: [UserUpdateWithWhereUniqueWithoutPlaylistsInput!]
+  upsert: [UserUpsertWithWhereUniqueWithoutPlaylistsInput!]
+  deleteMany: [UserScalarWhereInput!]
 }
 
 input UserUpdateOneRequiredWithoutAuthenticationsInput {
   create: UserCreateWithoutAuthenticationsInput
+  update: UserUpdateWithoutAuthenticationsDataInput
+  upsert: UserUpsertWithoutAuthenticationsInput
   connect: UserWhereUniqueInput
+}
+
+input UserUpdateWithoutAuthenticationsDataInput {
+  playlists: PlaylistUpdateManyWithoutUsersInput
+}
+
+input UserUpdateWithoutPlaylistsDataInput {
+  authentications: UserAuthUpdateManyWithoutUserInput
+}
+
+input UserUpdateWithWhereUniqueWithoutPlaylistsInput {
+  where: UserWhereUniqueInput!
+  data: UserUpdateWithoutPlaylistsDataInput!
+}
+
+input UserUpsertWithoutAuthenticationsInput {
+  update: UserUpdateWithoutAuthenticationsDataInput!
+  create: UserCreateWithoutAuthenticationsInput!
+}
+
+input UserUpsertWithWhereUniqueWithoutPlaylistsInput {
+  where: UserWhereUniqueInput!
+  update: UserUpdateWithoutPlaylistsDataInput!
+  create: UserCreateWithoutPlaylistsInput!
 }
 
 input UserWhereInput {
@@ -732,6 +998,7 @@ input UserWhereInput {
   id_ends_with: ID
   id_not_ends_with: ID
   authentications_some: UserAuthWhereInput
+  playlists_some: PlaylistWhereInput
   AND: [UserWhereInput!]
 }
 

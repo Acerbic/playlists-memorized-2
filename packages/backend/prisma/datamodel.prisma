@@ -7,6 +7,7 @@ enum AuthType {
 type User {
   id: ID! @id
   authentications: [UserAuth!]! @relation(link: INLINE)
+  playlists: [Playlist!]! @relation(link: INLINE)
 }
 
 # Authentications of the user (via Google, Facebook, etc.)
@@ -14,7 +15,7 @@ type UserAuth {
   id: ID! @id
   type: AuthType!
   user: User!
-  authId: String! # id in the target authentication system
+  auth_id: String! # id in the target authentication system
   extra: Json # service-spefic data (google profile, access_token, etc)
 }
 
@@ -26,11 +27,13 @@ enum PlaylistType {
 # Entry for a playlist
 type Playlist {
   id: ID! @id
+  title: String # duplicated in snapshots
   created_at: DateTime!
   modified_at: DateTime!
   type: PlaylistType!
   source_id: String! # id in the (type) playlist source system
   snapshots: [Snapshot!]! @relation(link: INLINE)
+  users: [User]!
 }
 
 # A playlist content at certain point in time
@@ -38,5 +41,6 @@ type Snapshot {
   id: ID! @id
   created_at: DateTime!
   playlist: Playlist!
+  title: String # name of the playlist
   data: Json # array of song entries and any other info
 }

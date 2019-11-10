@@ -216,17 +216,35 @@ export interface ClientConstructor<T> {
 
 export type PlaylistType = "YOUTUBE";
 
+export type AuthType = "GOOGLE";
+
 export type SnapshotOrderByInput =
   | "id_ASC"
   | "id_DESC"
   | "created_at_ASC"
   | "created_at_DESC"
+  | "title_ASC"
+  | "title_DESC"
   | "data_ASC"
   | "data_DESC";
+
+export type UserOrderByInput = "id_ASC" | "id_DESC";
+
+export type UserAuthOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "type_ASC"
+  | "type_DESC"
+  | "auth_id_ASC"
+  | "auth_id_DESC"
+  | "extra_ASC"
+  | "extra_DESC";
 
 export type PlaylistOrderByInput =
   | "id_ASC"
   | "id_DESC"
+  | "title_ASC"
+  | "title_DESC"
   | "created_at_ASC"
   | "created_at_DESC"
   | "modified_at_ASC"
@@ -235,20 +253,6 @@ export type PlaylistOrderByInput =
   | "type_DESC"
   | "source_id_ASC"
   | "source_id_DESC";
-
-export type AuthType = "GOOGLE";
-
-export type UserAuthOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "type_ASC"
-  | "type_DESC"
-  | "authId_ASC"
-  | "authId_DESC"
-  | "extra_ASC"
-  | "extra_DESC";
-
-export type UserOrderByInput = "id_ASC" | "id_DESC";
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
@@ -280,6 +284,20 @@ export interface SnapshotWhereInput {
   created_at_gt?: Maybe<DateTimeInput>;
   created_at_gte?: Maybe<DateTimeInput>;
   playlist?: Maybe<PlaylistWhereInput>;
+  title?: Maybe<String>;
+  title_not?: Maybe<String>;
+  title_in?: Maybe<String[] | String>;
+  title_not_in?: Maybe<String[] | String>;
+  title_lt?: Maybe<String>;
+  title_lte?: Maybe<String>;
+  title_gt?: Maybe<String>;
+  title_gte?: Maybe<String>;
+  title_contains?: Maybe<String>;
+  title_not_contains?: Maybe<String>;
+  title_starts_with?: Maybe<String>;
+  title_not_starts_with?: Maybe<String>;
+  title_ends_with?: Maybe<String>;
+  title_not_ends_with?: Maybe<String>;
   AND?: Maybe<SnapshotWhereInput[] | SnapshotWhereInput>;
 }
 
@@ -298,6 +316,20 @@ export interface PlaylistWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
+  title?: Maybe<String>;
+  title_not?: Maybe<String>;
+  title_in?: Maybe<String[] | String>;
+  title_not_in?: Maybe<String[] | String>;
+  title_lt?: Maybe<String>;
+  title_lte?: Maybe<String>;
+  title_gt?: Maybe<String>;
+  title_gte?: Maybe<String>;
+  title_contains?: Maybe<String>;
+  title_not_contains?: Maybe<String>;
+  title_starts_with?: Maybe<String>;
+  title_not_starts_with?: Maybe<String>;
+  title_ends_with?: Maybe<String>;
+  title_not_ends_with?: Maybe<String>;
   created_at?: Maybe<DateTimeInput>;
   created_at_not?: Maybe<DateTimeInput>;
   created_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
@@ -333,16 +365,29 @@ export interface PlaylistWhereInput {
   source_id_ends_with?: Maybe<String>;
   source_id_not_ends_with?: Maybe<String>;
   snapshots_some?: Maybe<SnapshotWhereInput>;
+  users_some?: Maybe<UserWhereInput>;
   AND?: Maybe<PlaylistWhereInput[] | PlaylistWhereInput>;
 }
 
-export type SnapshotWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-}>;
-
-export type UserWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-}>;
+export interface UserWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  authentications_some?: Maybe<UserAuthWhereInput>;
+  playlists_some?: Maybe<PlaylistWhereInput>;
+  AND?: Maybe<UserWhereInput[] | UserWhereInput>;
+}
 
 export interface UserAuthWhereInput {
   id?: Maybe<ID_Input>;
@@ -364,41 +409,30 @@ export interface UserAuthWhereInput {
   type_in?: Maybe<AuthType[] | AuthType>;
   type_not_in?: Maybe<AuthType[] | AuthType>;
   user?: Maybe<UserWhereInput>;
-  authId?: Maybe<String>;
-  authId_not?: Maybe<String>;
-  authId_in?: Maybe<String[] | String>;
-  authId_not_in?: Maybe<String[] | String>;
-  authId_lt?: Maybe<String>;
-  authId_lte?: Maybe<String>;
-  authId_gt?: Maybe<String>;
-  authId_gte?: Maybe<String>;
-  authId_contains?: Maybe<String>;
-  authId_not_contains?: Maybe<String>;
-  authId_starts_with?: Maybe<String>;
-  authId_not_starts_with?: Maybe<String>;
-  authId_ends_with?: Maybe<String>;
-  authId_not_ends_with?: Maybe<String>;
+  auth_id?: Maybe<String>;
+  auth_id_not?: Maybe<String>;
+  auth_id_in?: Maybe<String[] | String>;
+  auth_id_not_in?: Maybe<String[] | String>;
+  auth_id_lt?: Maybe<String>;
+  auth_id_lte?: Maybe<String>;
+  auth_id_gt?: Maybe<String>;
+  auth_id_gte?: Maybe<String>;
+  auth_id_contains?: Maybe<String>;
+  auth_id_not_contains?: Maybe<String>;
+  auth_id_starts_with?: Maybe<String>;
+  auth_id_not_starts_with?: Maybe<String>;
+  auth_id_ends_with?: Maybe<String>;
+  auth_id_not_ends_with?: Maybe<String>;
   AND?: Maybe<UserAuthWhereInput[] | UserAuthWhereInput>;
 }
 
-export interface UserWhereInput {
-  id?: Maybe<ID_Input>;
-  id_not?: Maybe<ID_Input>;
-  id_in?: Maybe<ID_Input[] | ID_Input>;
-  id_not_in?: Maybe<ID_Input[] | ID_Input>;
-  id_lt?: Maybe<ID_Input>;
-  id_lte?: Maybe<ID_Input>;
-  id_gt?: Maybe<ID_Input>;
-  id_gte?: Maybe<ID_Input>;
-  id_contains?: Maybe<ID_Input>;
-  id_not_contains?: Maybe<ID_Input>;
-  id_starts_with?: Maybe<ID_Input>;
-  id_not_starts_with?: Maybe<ID_Input>;
-  id_ends_with?: Maybe<ID_Input>;
-  id_not_ends_with?: Maybe<ID_Input>;
-  authentications_some?: Maybe<UserAuthWhereInput>;
-  AND?: Maybe<UserWhereInput[] | UserWhereInput>;
-}
+export type SnapshotWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export type UserWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
 
 export type UserAuthWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
@@ -406,11 +440,13 @@ export type UserAuthWhereUniqueInput = AtLeastOne<{
 
 export interface PlaylistCreateInput {
   id?: Maybe<ID_Input>;
+  title?: Maybe<String>;
   created_at: DateTimeInput;
   modified_at: DateTimeInput;
   type: PlaylistType;
   source_id: String;
   snapshots?: Maybe<SnapshotCreateManyWithoutPlaylistInput>;
+  users?: Maybe<UserCreateManyWithoutPlaylistsInput>;
 }
 
 export interface SnapshotCreateManyWithoutPlaylistInput {
@@ -423,15 +459,44 @@ export interface SnapshotCreateManyWithoutPlaylistInput {
 export interface SnapshotCreateWithoutPlaylistInput {
   id?: Maybe<ID_Input>;
   created_at: DateTimeInput;
+  title?: Maybe<String>;
   data?: Maybe<Json>;
 }
 
+export interface UserCreateManyWithoutPlaylistsInput {
+  create?: Maybe<
+    UserCreateWithoutPlaylistsInput[] | UserCreateWithoutPlaylistsInput
+  >;
+  connect?: Maybe<UserWhereUniqueInput[] | UserWhereUniqueInput>;
+}
+
+export interface UserCreateWithoutPlaylistsInput {
+  id?: Maybe<ID_Input>;
+  authentications?: Maybe<UserAuthCreateManyWithoutUserInput>;
+}
+
+export interface UserAuthCreateManyWithoutUserInput {
+  create?: Maybe<
+    UserAuthCreateWithoutUserInput[] | UserAuthCreateWithoutUserInput
+  >;
+  connect?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+}
+
+export interface UserAuthCreateWithoutUserInput {
+  id?: Maybe<ID_Input>;
+  type: AuthType;
+  auth_id: String;
+  extra?: Maybe<Json>;
+}
+
 export interface PlaylistUpdateInput {
+  title?: Maybe<String>;
   created_at?: Maybe<DateTimeInput>;
   modified_at?: Maybe<DateTimeInput>;
   type?: Maybe<PlaylistType>;
   source_id?: Maybe<String>;
   snapshots?: Maybe<SnapshotUpdateManyWithoutPlaylistInput>;
+  users?: Maybe<UserUpdateManyWithoutPlaylistsInput>;
 }
 
 export interface SnapshotUpdateManyWithoutPlaylistInput {
@@ -464,6 +529,7 @@ export interface SnapshotUpdateWithWhereUniqueWithoutPlaylistInput {
 
 export interface SnapshotUpdateWithoutPlaylistDataInput {
   created_at?: Maybe<DateTimeInput>;
+  title?: Maybe<String>;
   data?: Maybe<Json>;
 }
 
@@ -496,6 +562,20 @@ export interface SnapshotScalarWhereInput {
   created_at_lte?: Maybe<DateTimeInput>;
   created_at_gt?: Maybe<DateTimeInput>;
   created_at_gte?: Maybe<DateTimeInput>;
+  title?: Maybe<String>;
+  title_not?: Maybe<String>;
+  title_in?: Maybe<String[] | String>;
+  title_not_in?: Maybe<String[] | String>;
+  title_lt?: Maybe<String>;
+  title_lte?: Maybe<String>;
+  title_gt?: Maybe<String>;
+  title_gte?: Maybe<String>;
+  title_contains?: Maybe<String>;
+  title_not_contains?: Maybe<String>;
+  title_starts_with?: Maybe<String>;
+  title_not_starts_with?: Maybe<String>;
+  title_ends_with?: Maybe<String>;
+  title_not_ends_with?: Maybe<String>;
   AND?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
   OR?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
   NOT?: Maybe<SnapshotScalarWhereInput[] | SnapshotScalarWhereInput>;
@@ -508,86 +588,35 @@ export interface SnapshotUpdateManyWithWhereNestedInput {
 
 export interface SnapshotUpdateManyDataInput {
   created_at?: Maybe<DateTimeInput>;
+  title?: Maybe<String>;
   data?: Maybe<Json>;
 }
 
-export interface PlaylistUpdateManyMutationInput {
-  created_at?: Maybe<DateTimeInput>;
-  modified_at?: Maybe<DateTimeInput>;
-  type?: Maybe<PlaylistType>;
-  source_id?: Maybe<String>;
-}
-
-export interface SnapshotCreateInput {
-  id?: Maybe<ID_Input>;
-  created_at: DateTimeInput;
-  playlist: PlaylistCreateOneWithoutSnapshotsInput;
-  data?: Maybe<Json>;
-}
-
-export interface PlaylistCreateOneWithoutSnapshotsInput {
-  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
-  connect?: Maybe<PlaylistWhereUniqueInput>;
-}
-
-export interface PlaylistCreateWithoutSnapshotsInput {
-  id?: Maybe<ID_Input>;
-  created_at: DateTimeInput;
-  modified_at: DateTimeInput;
-  type: PlaylistType;
-  source_id: String;
-}
-
-export interface SnapshotUpdateInput {
-  created_at?: Maybe<DateTimeInput>;
-  playlist?: Maybe<PlaylistUpdateOneRequiredWithoutSnapshotsInput>;
-  data?: Maybe<Json>;
-}
-
-export interface PlaylistUpdateOneRequiredWithoutSnapshotsInput {
-  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
-  update?: Maybe<PlaylistUpdateWithoutSnapshotsDataInput>;
-  upsert?: Maybe<PlaylistUpsertWithoutSnapshotsInput>;
-  connect?: Maybe<PlaylistWhereUniqueInput>;
-}
-
-export interface PlaylistUpdateWithoutSnapshotsDataInput {
-  created_at?: Maybe<DateTimeInput>;
-  modified_at?: Maybe<DateTimeInput>;
-  type?: Maybe<PlaylistType>;
-  source_id?: Maybe<String>;
-}
-
-export interface PlaylistUpsertWithoutSnapshotsInput {
-  update: PlaylistUpdateWithoutSnapshotsDataInput;
-  create: PlaylistCreateWithoutSnapshotsInput;
-}
-
-export interface SnapshotUpdateManyMutationInput {
-  created_at?: Maybe<DateTimeInput>;
-  data?: Maybe<Json>;
-}
-
-export interface UserCreateInput {
-  id?: Maybe<ID_Input>;
-  authentications?: Maybe<UserAuthCreateManyWithoutUserInput>;
-}
-
-export interface UserAuthCreateManyWithoutUserInput {
+export interface UserUpdateManyWithoutPlaylistsInput {
   create?: Maybe<
-    UserAuthCreateWithoutUserInput[] | UserAuthCreateWithoutUserInput
+    UserCreateWithoutPlaylistsInput[] | UserCreateWithoutPlaylistsInput
   >;
-  connect?: Maybe<UserAuthWhereUniqueInput[] | UserAuthWhereUniqueInput>;
+  delete?: Maybe<UserWhereUniqueInput[] | UserWhereUniqueInput>;
+  connect?: Maybe<UserWhereUniqueInput[] | UserWhereUniqueInput>;
+  set?: Maybe<UserWhereUniqueInput[] | UserWhereUniqueInput>;
+  disconnect?: Maybe<UserWhereUniqueInput[] | UserWhereUniqueInput>;
+  update?: Maybe<
+    | UserUpdateWithWhereUniqueWithoutPlaylistsInput[]
+    | UserUpdateWithWhereUniqueWithoutPlaylistsInput
+  >;
+  upsert?: Maybe<
+    | UserUpsertWithWhereUniqueWithoutPlaylistsInput[]
+    | UserUpsertWithWhereUniqueWithoutPlaylistsInput
+  >;
+  deleteMany?: Maybe<UserScalarWhereInput[] | UserScalarWhereInput>;
 }
 
-export interface UserAuthCreateWithoutUserInput {
-  id?: Maybe<ID_Input>;
-  type: AuthType;
-  authId: String;
-  extra?: Maybe<Json>;
+export interface UserUpdateWithWhereUniqueWithoutPlaylistsInput {
+  where: UserWhereUniqueInput;
+  data: UserUpdateWithoutPlaylistsDataInput;
 }
 
-export interface UserUpdateInput {
+export interface UserUpdateWithoutPlaylistsDataInput {
   authentications?: Maybe<UserAuthUpdateManyWithoutUserInput>;
 }
 
@@ -621,7 +650,7 @@ export interface UserAuthUpdateWithWhereUniqueWithoutUserInput {
 
 export interface UserAuthUpdateWithoutUserDataInput {
   type?: Maybe<AuthType>;
-  authId?: Maybe<String>;
+  auth_id?: Maybe<String>;
   extra?: Maybe<Json>;
 }
 
@@ -650,20 +679,20 @@ export interface UserAuthScalarWhereInput {
   type_not?: Maybe<AuthType>;
   type_in?: Maybe<AuthType[] | AuthType>;
   type_not_in?: Maybe<AuthType[] | AuthType>;
-  authId?: Maybe<String>;
-  authId_not?: Maybe<String>;
-  authId_in?: Maybe<String[] | String>;
-  authId_not_in?: Maybe<String[] | String>;
-  authId_lt?: Maybe<String>;
-  authId_lte?: Maybe<String>;
-  authId_gt?: Maybe<String>;
-  authId_gte?: Maybe<String>;
-  authId_contains?: Maybe<String>;
-  authId_not_contains?: Maybe<String>;
-  authId_starts_with?: Maybe<String>;
-  authId_not_starts_with?: Maybe<String>;
-  authId_ends_with?: Maybe<String>;
-  authId_not_ends_with?: Maybe<String>;
+  auth_id?: Maybe<String>;
+  auth_id_not?: Maybe<String>;
+  auth_id_in?: Maybe<String[] | String>;
+  auth_id_not_in?: Maybe<String[] | String>;
+  auth_id_lt?: Maybe<String>;
+  auth_id_lte?: Maybe<String>;
+  auth_id_gt?: Maybe<String>;
+  auth_id_gte?: Maybe<String>;
+  auth_id_contains?: Maybe<String>;
+  auth_id_not_contains?: Maybe<String>;
+  auth_id_starts_with?: Maybe<String>;
+  auth_id_not_starts_with?: Maybe<String>;
+  auth_id_ends_with?: Maybe<String>;
+  auth_id_not_ends_with?: Maybe<String>;
   AND?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
   OR?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
   NOT?: Maybe<UserAuthScalarWhereInput[] | UserAuthScalarWhereInput>;
@@ -676,15 +705,258 @@ export interface UserAuthUpdateManyWithWhereNestedInput {
 
 export interface UserAuthUpdateManyDataInput {
   type?: Maybe<AuthType>;
-  authId?: Maybe<String>;
+  auth_id?: Maybe<String>;
   extra?: Maybe<Json>;
+}
+
+export interface UserUpsertWithWhereUniqueWithoutPlaylistsInput {
+  where: UserWhereUniqueInput;
+  update: UserUpdateWithoutPlaylistsDataInput;
+  create: UserCreateWithoutPlaylistsInput;
+}
+
+export interface UserScalarWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  AND?: Maybe<UserScalarWhereInput[] | UserScalarWhereInput>;
+  OR?: Maybe<UserScalarWhereInput[] | UserScalarWhereInput>;
+  NOT?: Maybe<UserScalarWhereInput[] | UserScalarWhereInput>;
+}
+
+export interface PlaylistUpdateManyMutationInput {
+  title?: Maybe<String>;
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+}
+
+export interface SnapshotCreateInput {
+  id?: Maybe<ID_Input>;
+  created_at: DateTimeInput;
+  playlist: PlaylistCreateOneWithoutSnapshotsInput;
+  title?: Maybe<String>;
+  data?: Maybe<Json>;
+}
+
+export interface PlaylistCreateOneWithoutSnapshotsInput {
+  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
+  connect?: Maybe<PlaylistWhereUniqueInput>;
+}
+
+export interface PlaylistCreateWithoutSnapshotsInput {
+  id?: Maybe<ID_Input>;
+  title?: Maybe<String>;
+  created_at: DateTimeInput;
+  modified_at: DateTimeInput;
+  type: PlaylistType;
+  source_id: String;
+  users?: Maybe<UserCreateManyWithoutPlaylistsInput>;
+}
+
+export interface SnapshotUpdateInput {
+  created_at?: Maybe<DateTimeInput>;
+  playlist?: Maybe<PlaylistUpdateOneRequiredWithoutSnapshotsInput>;
+  title?: Maybe<String>;
+  data?: Maybe<Json>;
+}
+
+export interface PlaylistUpdateOneRequiredWithoutSnapshotsInput {
+  create?: Maybe<PlaylistCreateWithoutSnapshotsInput>;
+  update?: Maybe<PlaylistUpdateWithoutSnapshotsDataInput>;
+  upsert?: Maybe<PlaylistUpsertWithoutSnapshotsInput>;
+  connect?: Maybe<PlaylistWhereUniqueInput>;
+}
+
+export interface PlaylistUpdateWithoutSnapshotsDataInput {
+  title?: Maybe<String>;
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+  users?: Maybe<UserUpdateManyWithoutPlaylistsInput>;
+}
+
+export interface PlaylistUpsertWithoutSnapshotsInput {
+  update: PlaylistUpdateWithoutSnapshotsDataInput;
+  create: PlaylistCreateWithoutSnapshotsInput;
+}
+
+export interface SnapshotUpdateManyMutationInput {
+  created_at?: Maybe<DateTimeInput>;
+  title?: Maybe<String>;
+  data?: Maybe<Json>;
+}
+
+export interface UserCreateInput {
+  id?: Maybe<ID_Input>;
+  authentications?: Maybe<UserAuthCreateManyWithoutUserInput>;
+  playlists?: Maybe<PlaylistCreateManyWithoutUsersInput>;
+}
+
+export interface PlaylistCreateManyWithoutUsersInput {
+  create?: Maybe<
+    PlaylistCreateWithoutUsersInput[] | PlaylistCreateWithoutUsersInput
+  >;
+  connect?: Maybe<PlaylistWhereUniqueInput[] | PlaylistWhereUniqueInput>;
+}
+
+export interface PlaylistCreateWithoutUsersInput {
+  id?: Maybe<ID_Input>;
+  title?: Maybe<String>;
+  created_at: DateTimeInput;
+  modified_at: DateTimeInput;
+  type: PlaylistType;
+  source_id: String;
+  snapshots?: Maybe<SnapshotCreateManyWithoutPlaylistInput>;
+}
+
+export interface UserUpdateInput {
+  authentications?: Maybe<UserAuthUpdateManyWithoutUserInput>;
+  playlists?: Maybe<PlaylistUpdateManyWithoutUsersInput>;
+}
+
+export interface PlaylistUpdateManyWithoutUsersInput {
+  create?: Maybe<
+    PlaylistCreateWithoutUsersInput[] | PlaylistCreateWithoutUsersInput
+  >;
+  delete?: Maybe<PlaylistWhereUniqueInput[] | PlaylistWhereUniqueInput>;
+  connect?: Maybe<PlaylistWhereUniqueInput[] | PlaylistWhereUniqueInput>;
+  set?: Maybe<PlaylistWhereUniqueInput[] | PlaylistWhereUniqueInput>;
+  disconnect?: Maybe<PlaylistWhereUniqueInput[] | PlaylistWhereUniqueInput>;
+  update?: Maybe<
+    | PlaylistUpdateWithWhereUniqueWithoutUsersInput[]
+    | PlaylistUpdateWithWhereUniqueWithoutUsersInput
+  >;
+  upsert?: Maybe<
+    | PlaylistUpsertWithWhereUniqueWithoutUsersInput[]
+    | PlaylistUpsertWithWhereUniqueWithoutUsersInput
+  >;
+  deleteMany?: Maybe<PlaylistScalarWhereInput[] | PlaylistScalarWhereInput>;
+  updateMany?: Maybe<
+    | PlaylistUpdateManyWithWhereNestedInput[]
+    | PlaylistUpdateManyWithWhereNestedInput
+  >;
+}
+
+export interface PlaylistUpdateWithWhereUniqueWithoutUsersInput {
+  where: PlaylistWhereUniqueInput;
+  data: PlaylistUpdateWithoutUsersDataInput;
+}
+
+export interface PlaylistUpdateWithoutUsersDataInput {
+  title?: Maybe<String>;
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
+  snapshots?: Maybe<SnapshotUpdateManyWithoutPlaylistInput>;
+}
+
+export interface PlaylistUpsertWithWhereUniqueWithoutUsersInput {
+  where: PlaylistWhereUniqueInput;
+  update: PlaylistUpdateWithoutUsersDataInput;
+  create: PlaylistCreateWithoutUsersInput;
+}
+
+export interface PlaylistScalarWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  title?: Maybe<String>;
+  title_not?: Maybe<String>;
+  title_in?: Maybe<String[] | String>;
+  title_not_in?: Maybe<String[] | String>;
+  title_lt?: Maybe<String>;
+  title_lte?: Maybe<String>;
+  title_gt?: Maybe<String>;
+  title_gte?: Maybe<String>;
+  title_contains?: Maybe<String>;
+  title_not_contains?: Maybe<String>;
+  title_starts_with?: Maybe<String>;
+  title_not_starts_with?: Maybe<String>;
+  title_ends_with?: Maybe<String>;
+  title_not_ends_with?: Maybe<String>;
+  created_at?: Maybe<DateTimeInput>;
+  created_at_not?: Maybe<DateTimeInput>;
+  created_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  created_at_lt?: Maybe<DateTimeInput>;
+  created_at_lte?: Maybe<DateTimeInput>;
+  created_at_gt?: Maybe<DateTimeInput>;
+  created_at_gte?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  modified_at_not?: Maybe<DateTimeInput>;
+  modified_at_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  modified_at_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  modified_at_lt?: Maybe<DateTimeInput>;
+  modified_at_lte?: Maybe<DateTimeInput>;
+  modified_at_gt?: Maybe<DateTimeInput>;
+  modified_at_gte?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  type_not?: Maybe<PlaylistType>;
+  type_in?: Maybe<PlaylistType[] | PlaylistType>;
+  type_not_in?: Maybe<PlaylistType[] | PlaylistType>;
+  source_id?: Maybe<String>;
+  source_id_not?: Maybe<String>;
+  source_id_in?: Maybe<String[] | String>;
+  source_id_not_in?: Maybe<String[] | String>;
+  source_id_lt?: Maybe<String>;
+  source_id_lte?: Maybe<String>;
+  source_id_gt?: Maybe<String>;
+  source_id_gte?: Maybe<String>;
+  source_id_contains?: Maybe<String>;
+  source_id_not_contains?: Maybe<String>;
+  source_id_starts_with?: Maybe<String>;
+  source_id_not_starts_with?: Maybe<String>;
+  source_id_ends_with?: Maybe<String>;
+  source_id_not_ends_with?: Maybe<String>;
+  AND?: Maybe<PlaylistScalarWhereInput[] | PlaylistScalarWhereInput>;
+  OR?: Maybe<PlaylistScalarWhereInput[] | PlaylistScalarWhereInput>;
+  NOT?: Maybe<PlaylistScalarWhereInput[] | PlaylistScalarWhereInput>;
+}
+
+export interface PlaylistUpdateManyWithWhereNestedInput {
+  where: PlaylistScalarWhereInput;
+  data: PlaylistUpdateManyDataInput;
+}
+
+export interface PlaylistUpdateManyDataInput {
+  title?: Maybe<String>;
+  created_at?: Maybe<DateTimeInput>;
+  modified_at?: Maybe<DateTimeInput>;
+  type?: Maybe<PlaylistType>;
+  source_id?: Maybe<String>;
 }
 
 export interface UserAuthCreateInput {
   id?: Maybe<ID_Input>;
   type: AuthType;
   user: UserCreateOneWithoutAuthenticationsInput;
-  authId: String;
+  auth_id: String;
   extra?: Maybe<Json>;
 }
 
@@ -695,23 +967,35 @@ export interface UserCreateOneWithoutAuthenticationsInput {
 
 export interface UserCreateWithoutAuthenticationsInput {
   id?: Maybe<ID_Input>;
+  playlists?: Maybe<PlaylistCreateManyWithoutUsersInput>;
 }
 
 export interface UserAuthUpdateInput {
   type?: Maybe<AuthType>;
   user?: Maybe<UserUpdateOneRequiredWithoutAuthenticationsInput>;
-  authId?: Maybe<String>;
+  auth_id?: Maybe<String>;
   extra?: Maybe<Json>;
 }
 
 export interface UserUpdateOneRequiredWithoutAuthenticationsInput {
   create?: Maybe<UserCreateWithoutAuthenticationsInput>;
+  update?: Maybe<UserUpdateWithoutAuthenticationsDataInput>;
+  upsert?: Maybe<UserUpsertWithoutAuthenticationsInput>;
   connect?: Maybe<UserWhereUniqueInput>;
+}
+
+export interface UserUpdateWithoutAuthenticationsDataInput {
+  playlists?: Maybe<PlaylistUpdateManyWithoutUsersInput>;
+}
+
+export interface UserUpsertWithoutAuthenticationsInput {
+  update: UserUpdateWithoutAuthenticationsDataInput;
+  create: UserCreateWithoutAuthenticationsInput;
 }
 
 export interface UserAuthUpdateManyMutationInput {
   type?: Maybe<AuthType>;
-  authId?: Maybe<String>;
+  auth_id?: Maybe<String>;
   extra?: Maybe<Json>;
 }
 
@@ -763,6 +1047,7 @@ export interface NodeNode {
 
 export interface Playlist {
   id: ID_Output;
+  title?: String;
   created_at: DateTimeOutput;
   modified_at: DateTimeOutput;
   type: PlaylistType;
@@ -771,6 +1056,7 @@ export interface Playlist {
 
 export interface PlaylistPromise extends Promise<Playlist>, Fragmentable {
   id: () => Promise<ID_Output>;
+  title: () => Promise<String>;
   created_at: () => Promise<DateTimeOutput>;
   modified_at: () => Promise<DateTimeOutput>;
   type: () => Promise<PlaylistType>;
@@ -784,12 +1070,22 @@ export interface PlaylistPromise extends Promise<Playlist>, Fragmentable {
     first?: Int;
     last?: Int;
   }) => T;
+  users: <T = FragmentableArray<User>>(args?: {
+    where?: UserWhereInput;
+    orderBy?: UserOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
 }
 
 export interface PlaylistSubscription
   extends Promise<AsyncIterator<Playlist>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
+  title: () => Promise<AsyncIterator<String>>;
   created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
   modified_at: () => Promise<AsyncIterator<DateTimeOutput>>;
   type: () => Promise<AsyncIterator<PlaylistType>>;
@@ -803,12 +1099,22 @@ export interface PlaylistSubscription
     first?: Int;
     last?: Int;
   }) => T;
+  users: <T = Promise<AsyncIterator<UserSubscription>>>(args?: {
+    where?: UserWhereInput;
+    orderBy?: UserOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
 }
 
 export interface PlaylistNullablePromise
   extends Promise<Playlist | null>,
     Fragmentable {
   id: () => Promise<ID_Output>;
+  title: () => Promise<String>;
   created_at: () => Promise<DateTimeOutput>;
   modified_at: () => Promise<DateTimeOutput>;
   type: () => Promise<PlaylistType>;
@@ -822,11 +1128,21 @@ export interface PlaylistNullablePromise
     first?: Int;
     last?: Int;
   }) => T;
+  users: <T = FragmentableArray<User>>(args?: {
+    where?: UserWhereInput;
+    orderBy?: UserOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
 }
 
 export interface Snapshot {
   id: ID_Output;
   created_at: DateTimeOutput;
+  title?: String;
   data?: Json;
 }
 
@@ -834,6 +1150,7 @@ export interface SnapshotPromise extends Promise<Snapshot>, Fragmentable {
   id: () => Promise<ID_Output>;
   created_at: () => Promise<DateTimeOutput>;
   playlist: <T = PlaylistPromise>() => T;
+  title: () => Promise<String>;
   data: () => Promise<Json>;
 }
 
@@ -843,6 +1160,7 @@ export interface SnapshotSubscription
   id: () => Promise<AsyncIterator<ID_Output>>;
   created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
   playlist: <T = PlaylistSubscription>() => T;
+  title: () => Promise<AsyncIterator<String>>;
   data: () => Promise<AsyncIterator<Json>>;
 }
 
@@ -852,7 +1170,117 @@ export interface SnapshotNullablePromise
   id: () => Promise<ID_Output>;
   created_at: () => Promise<DateTimeOutput>;
   playlist: <T = PlaylistPromise>() => T;
+  title: () => Promise<String>;
   data: () => Promise<Json>;
+}
+
+export interface User {
+  id: ID_Output;
+}
+
+export interface UserPromise extends Promise<User>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  authentications: <T = FragmentableArray<UserAuth>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+  playlists: <T = FragmentableArray<Playlist>>(args?: {
+    where?: PlaylistWhereInput;
+    orderBy?: PlaylistOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface UserSubscription
+  extends Promise<AsyncIterator<User>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  authentications: <T = Promise<AsyncIterator<UserAuthSubscription>>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+  playlists: <T = Promise<AsyncIterator<PlaylistSubscription>>>(args?: {
+    where?: PlaylistWhereInput;
+    orderBy?: PlaylistOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface UserNullablePromise
+  extends Promise<User | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  authentications: <T = FragmentableArray<UserAuth>>(args?: {
+    where?: UserAuthWhereInput;
+    orderBy?: UserAuthOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+  playlists: <T = FragmentableArray<Playlist>>(args?: {
+    where?: PlaylistWhereInput;
+    orderBy?: PlaylistOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => T;
+}
+
+export interface UserAuth {
+  id: ID_Output;
+  type: AuthType;
+  auth_id: String;
+  extra?: Json;
+}
+
+export interface UserAuthPromise extends Promise<UserAuth>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  type: () => Promise<AuthType>;
+  user: <T = UserPromise>() => T;
+  auth_id: () => Promise<String>;
+  extra: () => Promise<Json>;
+}
+
+export interface UserAuthSubscription
+  extends Promise<AsyncIterator<UserAuth>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  type: () => Promise<AsyncIterator<AuthType>>;
+  user: <T = UserSubscription>() => T;
+  auth_id: () => Promise<AsyncIterator<String>>;
+  extra: () => Promise<AsyncIterator<Json>>;
+}
+
+export interface UserAuthNullablePromise
+  extends Promise<UserAuth | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  type: () => Promise<AuthType>;
+  user: <T = UserPromise>() => T;
+  auth_id: () => Promise<String>;
+  extra: () => Promise<Json>;
 }
 
 export interface PlaylistConnection {
@@ -988,88 +1416,6 @@ export interface AggregateSnapshotSubscription
   extends Promise<AsyncIterator<AggregateSnapshot>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface User {
-  id: ID_Output;
-}
-
-export interface UserPromise extends Promise<User>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  authentications: <T = FragmentableArray<UserAuth>>(args?: {
-    where?: UserAuthWhereInput;
-    orderBy?: UserAuthOrderByInput;
-    skip?: Int;
-    after?: String;
-    before?: String;
-    first?: Int;
-    last?: Int;
-  }) => T;
-}
-
-export interface UserSubscription
-  extends Promise<AsyncIterator<User>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  authentications: <T = Promise<AsyncIterator<UserAuthSubscription>>>(args?: {
-    where?: UserAuthWhereInput;
-    orderBy?: UserAuthOrderByInput;
-    skip?: Int;
-    after?: String;
-    before?: String;
-    first?: Int;
-    last?: Int;
-  }) => T;
-}
-
-export interface UserNullablePromise
-  extends Promise<User | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  authentications: <T = FragmentableArray<UserAuth>>(args?: {
-    where?: UserAuthWhereInput;
-    orderBy?: UserAuthOrderByInput;
-    skip?: Int;
-    after?: String;
-    before?: String;
-    first?: Int;
-    last?: Int;
-  }) => T;
-}
-
-export interface UserAuth {
-  id: ID_Output;
-  type: AuthType;
-  authId: String;
-  extra?: Json;
-}
-
-export interface UserAuthPromise extends Promise<UserAuth>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  type: () => Promise<AuthType>;
-  user: <T = UserPromise>() => T;
-  authId: () => Promise<String>;
-  extra: () => Promise<Json>;
-}
-
-export interface UserAuthSubscription
-  extends Promise<AsyncIterator<UserAuth>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  type: () => Promise<AsyncIterator<AuthType>>;
-  user: <T = UserSubscription>() => T;
-  authId: () => Promise<AsyncIterator<String>>;
-  extra: () => Promise<AsyncIterator<Json>>;
-}
-
-export interface UserAuthNullablePromise
-  extends Promise<UserAuth | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  type: () => Promise<AuthType>;
-  user: <T = UserPromise>() => T;
-  authId: () => Promise<String>;
-  extra: () => Promise<Json>;
 }
 
 export interface UserConnection {
@@ -1225,6 +1571,7 @@ export interface PlaylistSubscriptionPayloadSubscription
 
 export interface PlaylistPreviousValues {
   id: ID_Output;
+  title?: String;
   created_at: DateTimeOutput;
   modified_at: DateTimeOutput;
   type: PlaylistType;
@@ -1235,6 +1582,7 @@ export interface PlaylistPreviousValuesPromise
   extends Promise<PlaylistPreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
+  title: () => Promise<String>;
   created_at: () => Promise<DateTimeOutput>;
   modified_at: () => Promise<DateTimeOutput>;
   type: () => Promise<PlaylistType>;
@@ -1245,6 +1593,7 @@ export interface PlaylistPreviousValuesSubscription
   extends Promise<AsyncIterator<PlaylistPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
+  title: () => Promise<AsyncIterator<String>>;
   created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
   modified_at: () => Promise<AsyncIterator<DateTimeOutput>>;
   type: () => Promise<AsyncIterator<PlaylistType>>;
@@ -1279,6 +1628,7 @@ export interface SnapshotSubscriptionPayloadSubscription
 export interface SnapshotPreviousValues {
   id: ID_Output;
   created_at: DateTimeOutput;
+  title?: String;
   data?: Json;
 }
 
@@ -1287,6 +1637,7 @@ export interface SnapshotPreviousValuesPromise
     Fragmentable {
   id: () => Promise<ID_Output>;
   created_at: () => Promise<DateTimeOutput>;
+  title: () => Promise<String>;
   data: () => Promise<Json>;
 }
 
@@ -1295,6 +1646,7 @@ export interface SnapshotPreviousValuesSubscription
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
   created_at: () => Promise<AsyncIterator<DateTimeOutput>>;
+  title: () => Promise<AsyncIterator<String>>;
   data: () => Promise<AsyncIterator<Json>>;
 }
 
@@ -1367,7 +1719,7 @@ export interface UserAuthSubscriptionPayloadSubscription
 export interface UserAuthPreviousValues {
   id: ID_Output;
   type: AuthType;
-  authId: String;
+  auth_id: String;
   extra?: Json;
 }
 
@@ -1376,7 +1728,7 @@ export interface UserAuthPreviousValuesPromise
     Fragmentable {
   id: () => Promise<ID_Output>;
   type: () => Promise<AuthType>;
-  authId: () => Promise<String>;
+  auth_id: () => Promise<String>;
   extra: () => Promise<Json>;
 }
 
@@ -1385,7 +1737,7 @@ export interface UserAuthPreviousValuesSubscription
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
   type: () => Promise<AsyncIterator<AuthType>>;
-  authId: () => Promise<AsyncIterator<String>>;
+  auth_id: () => Promise<AsyncIterator<String>>;
   extra: () => Promise<AsyncIterator<Json>>;
 }
 
@@ -1396,6 +1748,11 @@ export type ID_Input = string | number;
 export type ID_Output = string;
 
 /*
+The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
+*/
+export type String = string;
+
+/*
 DateTime scalar input type, allowing Date
 */
 export type DateTimeInput = Date | string;
@@ -1404,11 +1761,6 @@ export type DateTimeInput = Date | string;
 DateTime scalar output type, which is always a string
 */
 export type DateTimeOutput = string;
-
-/*
-The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
-*/
-export type String = string;
 
 /*
 The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.
