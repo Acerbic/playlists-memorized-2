@@ -1,5 +1,4 @@
 import React from "react";
-import { Row, Col } from "antd";
 
 export default () => {
     const u = new URL("http://backend.localhost.com:8000/auth/google");
@@ -9,11 +8,9 @@ export default () => {
     );
 
     return (
-        <Row>
-            <Col>
-                <div>Hello World!</div>
-                <a href={u.href}>LOGIN</a>
-            </Col>
-        </Row>
+        <>
+            <div>Hello World!</div>
+            <a href={u.href}>LOGIN</a>
+        </>
     );
 };
