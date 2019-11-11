@@ -145,4 +145,11 @@ describe("storage with Prisma #unit", () => {
         );
         expect(by_auth_id_user).toStrictEqual(changed_user);
     });
+
+    it.todo("should fail to add playlist if user object is incorrect");
+    it.todo("should be able to add a new playlist");
+    it.todo("should add only append a snapshot if playlist already exists");
+    it.todo("should support more than one user sharing a playlist");
+    it.todo("should be able to fetch a playlist by id");
+    it.todo("should be able to fetch a snapshot by id");
 });
