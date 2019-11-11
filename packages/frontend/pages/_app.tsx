@@ -1,7 +1,7 @@
 import React from "react";
 import App from "next/app";
-// import { Provider } from "react-redux";
-// import store from "../common/redux/store";
+import { Provider } from "react-redux";
+import store from "../common/redux/store";
 import Layout from "../components/Layout";
 
 class MyApp extends App {
@@ -20,11 +20,11 @@ class MyApp extends App {
     render() {
         const { Component, pageProps } = this.props;
         return (
-            // <Provider store={store}>
-            <Layout>
-                <Component {...pageProps} />
-            </Layout>
-            // </Provider>
+            <Provider store={store}>
+                <Layout>
+                    <Component {...pageProps} />
+                </Layout>
+            </Provider>
         );
     }
 }
